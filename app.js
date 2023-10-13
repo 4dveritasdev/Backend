@@ -7,7 +7,6 @@ const hpp = require('hpp');
 const cors = require('cors');
 const router = express.Router();
 
-const userRoutes = require('./routes/userRoutes');
 const companyRoutes = require('./routes/companyRoutes');
 const qrcodeRoutes = require('./routes/qrcodeRoutes');
 const productRoutes = require('./routes/productRoutes');
@@ -54,7 +53,6 @@ app.use(xss());
 app.use(hpp());
 
 // Routes
-app.use('/user', userRoutes);
 app.use('/company', companyRoutes);
 app.use('/product', productRoutes);
 app.use('/upload', uploadRoutes);

@@ -9,6 +9,7 @@ router.get('/', ProductController.getAllProducts);
 router.post('/filter', ProductController.getAllProducts);
 router.get('/:id', ProductController.getProduct);
 router.post('/', ProductController.addProduct);
+router.post('/:id/mint', ProductController.mint);
 router.put('/:id', ProductController.updateProduct);
 router.delete('/:id', ProductController.deleteProduct);
 

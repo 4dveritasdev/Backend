@@ -5,16 +5,9 @@ const productSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Company'
     },
-    qrcode_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'QRcode'
-    },
     name: {
         type: String,
         require: true
-    },
-    image: {
-        type: String,
     },
     detail: {
         type: String,
@@ -22,6 +15,12 @@ const productSchema = new mongoose.Schema({
     status: {
         type: String,
         default: ""
+    },
+    contract_address: {
+        type: String
+    },
+    total_minted_amount: {
+        type: Number
     }
 });
 
