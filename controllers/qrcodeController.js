@@ -9,3 +9,21 @@ exports.getQRcode = base.getOne(QRcode);
 exports.updateQRcode = base.updateOne(QRcode);
 exports.deleteQRcode = base.deleteOne(QRcode);
 exports.addQRcode = base.createOne(QRcode);
+
+exports.getQRcodesWithProductId = async(req, res, next) => {
+    try {
+        const doc = await QRcode.find({ product_id: req.body.product_id }).skip(req.body.offset).limit(req.body.amount);
+        
+        res.status(200).json({
+            status: 'success',
+            results: doc.length,
+            data: {
+                data: doc
+            }
+        });
+        
+    } catch (error) {
+        next(error);
+    }
+
+};

@@ -6,6 +6,8 @@ const CompanyController = require('../controllers/companyController');
 // router.use(authController.protect);
 
 router.get('/', CompanyController.getAllCompanys);
+router.post('/auth', CompanyController.login);
+// router.get('/info/:wallet', CompanyController.getCompanyByWallet);
 router.get('/:id', CompanyController.getCompany);
 router.post('/', CompanyController.addCompany);
 router.put('/:id', CompanyController.updateCompany);

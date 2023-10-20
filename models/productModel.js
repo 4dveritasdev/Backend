@@ -20,7 +20,8 @@ const productSchema = new mongoose.Schema({
         type: String
     },
     total_minted_amount: {
-        type: Number
+        type: Number,
+        default: 0
     }
 });
 

@@ -9,3 +9,40 @@ exports.getCompany = base.getOne(Company);
 exports.updateCompany = base.updateOne(Company);
 exports.deleteCompany = base.deleteOne(Company);
 exports.addCompany = base.createOne(Company);
+
+// exports.getCompanyByWallet = async(req, res, next) => {
+//     try {
+//         const doc = await Company.findOne({ wallet: req.params.wallet});
+
+//         res.status(200).json({
+//             status: 'success',
+//             data: {
+//                 doc
+//             }
+//         });
+//     } catch (error) {
+//         next(error);
+//     }
+// };
+
+exports.login = async(req, res, next) => {
+    try {
+        const doc = await Company.findOne({ name: req.body.name, password: req.body.password });
+
+        if(!doc) {
+            res.status(404).json({
+                status: 'failed',
+                message: 'company does not exist'
+            });    
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                doc
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};

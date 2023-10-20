@@ -3,10 +3,28 @@ const QRcode = require('../models/qrcodeModel');
 const base = require('./baseController');
 const APIFeatures = require('../utils/apiFeatures');
 const { generateQrCode } = require('../utils/generateQrCode');
+const { initClient, batchMint } = require('../web3/index.ts');
 // const qr = require('qr-image');
 const qr = require('qrcode')
 
-exports.getAllProducts = base.getAll(Product);
+exports.getAllProducts = async(req, res, next) => {
+    try {
+        const doc = await Product.find(req.body);
+        
+        res.status(200).json({
+            status: 'success',
+            results: doc.length,
+            data: {
+                data: doc
+            }
+        });
+        
+    } catch (error) {
+        next(error);
+    }
+
+};
+
 exports.getProduct = base.getOne(Product);
 
 // Don't update password on this 
@@ -16,7 +34,9 @@ exports.deleteProduct = base.deleteOne(Product);
 exports.addProduct = async(req, res, next) => {
     try {
         let product = req.body;
-        product.contract_address = '02c18bb9a23418d4139f71b271af63fac6881da459';
+
+        const contractAddres = await initClient();
+        product.contract_address = contractAddres;
         product.total_minted_amount = 0;
 
         const doc = await Product.create(product);
@@ -43,6 +63,9 @@ exports.mint = async(req, res, next) => {
             runValidators: true
         });
 
+        let qrcodeIds = [];
+        console.log(product);
+        console.log(product.contract_address, req.body.amount);
         for(let i = 1; i <= req.body.amount; i ++) {
             let stringdata = JSON.stringify({
                 company_id: product.company_id,
@@ -57,13 +80,17 @@ exports.mint = async(req, res, next) => {
                     product_id: product._id,
                     image: code
                 });
+                qrcodeIds.push((newQrCode._id).toString());
+                if(qrcodeIds.length == req.body.amount) {
+                    console.log(qrcodeIds);
+                    await batchMint(product.contract_address, qrcodeIds);
+                }
             })
         }
-        // const doc = await Product.create(req.body);
-        const qrcodedata = await QRcode.find();
 
         res.status(200).json({
             status: 'success',
+            offset: product.total_minted_amount
             // data: {
             //     doc
             // }
