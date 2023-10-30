@@ -71,6 +71,30 @@ export class TransactionSender {
                       },
                   );
   }
+  
+  public signWithNonce(transaction: Transaction, gasCost: BN, nonce: number): Promise<SignedTransaction | undefined> {
+    const sender: BlockchainAddress = BlockchainAddress.fromString(
+        CryptoUtils.keyPairToAccountAddress(this.keyPair),
+    );
+    return Promise.all([this.client.getAccountState(sender), this.client.getChainId()])
+                  .then(
+                      ([account, chainIdData]) => {
+                        if (account === undefined || chainIdData === undefined) {
+                          return undefined;
+                        }
+                        const validToTime = new BN(new Date().getTime()).add(
+                            this.transactionValidityDuration);
+                        return SignedTransaction.create(
+                            this.keyPair,
+                            new BN(nonce),
+                            validToTime,
+                            gasCost,
+                            chainIdData.chainId,
+                            transaction,
+                        );
+                      },
+                  );
+  }
 
   /**
    * Sends a signed transaction to the blockchain for execution and inclusion in a block.
@@ -95,6 +119,16 @@ export class TransactionSender {
    */
   public sendAndSign(transaction: Transaction, gasCost: BN): Promise<SentTransaction> {
     return this.sign(transaction, gasCost)
+               .then((signed) => {
+                 if (signed === undefined) {
+                   throw new Error("Failed to sign the transaction");
+                 }
+                 return this.send(signed);
+               });
+  }
+  
+  public sendAndSignWithNonce(transaction: Transaction, gasCost: BN, nonce: number): Promise<SentTransaction> {
+    return this.signWithNonce(transaction, gasCost, nonce)
                .then((signed) => {
                  if (signed === undefined) {
                    throw new Error("Failed to sign the transaction");

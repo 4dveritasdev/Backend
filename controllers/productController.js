@@ -3,9 +3,12 @@ const QRcode = require('../models/qrcodeModel');
 const base = require('./baseController');
 const APIFeatures = require('../utils/apiFeatures');
 const { generateQrCode } = require('../utils/generateQrCode');
-const { initClient, batchMint } = require('../web3/index.ts');
+const { initClient, batchMint, getNonce } = require('../web3/index.ts');
+const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 // const qr = require('qr-image');
 const qr = require('qrcode')
+
+const divcount = 10;
 
 exports.getAllProducts = async(req, res, next) => {
     try {
@@ -82,8 +85,13 @@ exports.mint = async(req, res, next) => {
                 });
                 qrcodeIds.push((newQrCode._id).toString());
                 if(qrcodeIds.length == req.body.amount) {
-                    console.log(qrcodeIds);
-                    await batchMint(product.contract_address, qrcodeIds);
+                    // console.log(qrcodeIds);
+                    console.log(qrcodeIds.length / divcount);
+                    batchMint(product.contract_address, qrcodeIds.slice((qrcodeIds.length / divcount - 1) * divcount));
+                }
+                else if(qrcodeIds.length % divcount === 0) {
+                    console.log(qrcodeIds.length / divcount);
+                    batchMint(product.contract_address, qrcodeIds.slice((qrcodeIds.length / divcount - 1) * divcount, divcount));
                 }
             })
         }

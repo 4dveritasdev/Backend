@@ -4,6 +4,7 @@ import {initialize, batch_mint} from "./nft_contract";
 import {deployContractWithBinderId} from "./pub_deploy"
 import {Client} from "./utils/Client";
 import {TransactionSender} from "./utils/TransactionSender";
+import {CryptoUtils} from "./utils/CryptoUtil";
 
 var fs = require("fs");
 
@@ -11,6 +12,7 @@ const TESTNET_URL = "https://node1.testnet.partisiablockchain.com";
 const client = new Client(TESTNET_URL);
 
 let SENDER_PRIVATE_KEY: string = "4931e8190e5ef42c225c86845abe7934dd704ca9d133d5dc7128c8e04db00ca6";
+let SENDER_PUBLICK_KEY: string = "00eacdb88750935eb88610a9a69cb22334965b8225";
 //4931e8190e5ef42c225c86845abe7934dd704ca9d133d5dc7128c8e04db00ca6
 //2e4fd54916e7e953cffd11bf13cc952e07863f957f8264be4f9ea1a1d9d5904c
 
@@ -60,7 +62,7 @@ export const batchMint = async (contract_address: string, qrcodes: string[]) => 
         contract_address);
 
     const transactionSender = TransactionSender.create(client, SENDER_PRIVATE_KEY);
-    const rpc = batch_mint('00d8211697d353fe632abe6d290a82b2118b972cad', 'QR Code', qrcodes, 'a', 'minted', '2023.10.20', '2023.10.20', '...');
+    const rpc = batch_mint(SENDER_PUBLICK_KEY, qrcodes, 'minted', '2023.10.20', '2023.10.20');
 
     // Send the transaction
     const transactionPointer = await transactionSender.sendAndSign(
@@ -68,7 +70,7 @@ export const batchMint = async (contract_address: string, qrcodes: string[]) => 
           address: contractAddress,
           rpc: rpc,
         },
-        new BN(10100000),
+        new BN(10100000)
     );
 
     const txIdentifier = transactionPointer.transactionPointer.identifier.toString("hex");
@@ -79,6 +81,12 @@ export const batchMint = async (contract_address: string, qrcodes: string[]) => 
     console.log(error);
   }
 };
+
+export const getNonce = async () : Promise<any> => {
+  let account: BlockchainAddress = BlockchainAddress.fromString(SENDER_PUBLICK_KEY);
+  const res = await client.getAccountState(account);
+  return res?.nonce;
+}
 
 // (async () => {
 //   await initClient();

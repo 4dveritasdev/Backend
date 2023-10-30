@@ -101,21 +101,18 @@ export function initialize(name: string, symbol: string, url_template: string): 
   return fnBuilder.getBytes();
 }
 
-export function batch_mint(to:string, key_type:string, key_detail:string[], guarantee_record:string, status:string, mpg_time:string, exp_time:string, location:string): Buffer {
+export function batch_mint(to:string, key_detail:string[], status:string, mpg_time:string, exp_time:string): Buffer {
   const fnBuilder = new FnRpcBuilder("batch_mint", fileAbi.contract);
   const encodedAddress = Buffer.from(to, "hex");
   fnBuilder.addAddress(encodedAddress);
-  fnBuilder.addString(key_type);
 
   let kk = fnBuilder.addVec();
   for (let i = 0; i < key_detail.length; i ++) {
     kk.addString(key_detail[i]);
   }
-  fnBuilder.addString(guarantee_record);
   fnBuilder.addString(status);
   fnBuilder.addString(mpg_time);
   fnBuilder.addString(exp_time);
-  fnBuilder.addString(location);
 
   return fnBuilder.getBytes();
 }
