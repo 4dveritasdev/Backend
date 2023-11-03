@@ -10,7 +10,7 @@ exports.updateQRcode = base.updateOne(QRcode);
 exports.deleteQRcode = base.deleteOne(QRcode);
 exports.addQRcode = base.createOne(QRcode);
 
-exports.getQRcodesWithProductId = async(req, res, next) => {
+exports.getQRcodesWithProductId = async(req: any, res: any, next: any) => {
     try {
         const doc = await QRcode.find({ product_id: req.body.product_id }).skip(req.body.offset).limit(req.body.amount);
         

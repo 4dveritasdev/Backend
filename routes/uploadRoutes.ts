@@ -6,7 +6,7 @@ const upload = require('../utils/upload');
 // Protect all routes after this middleware
 // router.use(authController.protect);
 
-router.post('/single', upload.single('file'), uploadController.uploadSingle);
+// router.post('/single', upload.single('file'), uploadController.uploadSingle);
 
 
 module.exports = router;

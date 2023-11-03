@@ -14,14 +14,14 @@ const app = require('./app');
 
 
 mongoose.connect(process.env.DATABASE,
-    err => {
+    (err: any) => {
         if(err) throw err;
         console.log('connected to MongoDB')
     });
 mongoose.connection.on('connected', () => {
     console.log('Connected to MongoDB');
 });
-mongoose.connection.on('error', (error) => {
+mongoose.connection.on('error', (error: any) => {
     console.log(error);
 });
 // Start the server
@@ -30,10 +30,10 @@ app.listen(port, () => {
     console.log(`Application is running on port ${port}`);
 });
 
-process.on('unhandledRejection', err => {
+process.on('unhandledRejection', (err: any) => {
     console.log('UNHANDLED REJECTION!!!  shutting down ...');
     console.log(err.name, err.message);
-    server.close(() => {
+    app.close(() => {
         process.exit(1);
     });
 });

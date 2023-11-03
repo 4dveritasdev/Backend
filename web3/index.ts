@@ -70,7 +70,7 @@ export const batchMint = async (contract_address: string, qrcodes: string[]) => 
           address: contractAddress,
           rpc: rpc,
         },
-        new BN(10100000)
+        new BN(5000000)
     );
 
     const txIdentifier = transactionPointer.transactionPointer.identifier.toString("hex");

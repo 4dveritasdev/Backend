@@ -40,7 +40,7 @@ app.use('/api', limiter);
 
 // Body parser, reading data from body into req.body
 app.use(express.json({
-    limit: '15kb'
+    limit: '100kb'
 }));
 
 // Data sanitization against Nosql query injection
@@ -61,7 +61,7 @@ app.use('/qrcode', qrcodeRoutes);
 app.use('/files', express.static('uploads'));
 
 //handle undefined Routes
-app.use('*', (req, res, next) => {
+app.use('*', (req: any, res: any, next: any) => {
     console.log(req.method);
     const err = new AppError(404, 'fail', 'undefined route');
     next(err, req, res, next);

@@ -10,7 +10,7 @@ exports.updateCompany = base.updateOne(Company);
 exports.deleteCompany = base.deleteOne(Company);
 exports.addCompany = base.createOne(Company);
 
-// exports.getCompanyByWallet = async(req, res, next) => {
+// exports.getCompanyByWallet = async(req: any, res: any, next: any) => {
 //     try {
 //         const doc = await Company.findOne({ wallet: req.params.wallet});
 
@@ -25,7 +25,7 @@ exports.addCompany = base.createOne(Company);
 //     }
 // };
 
-exports.login = async(req, res, next) => {
+exports.login = async(req: any, res: any, next: any) => {
     try {
         const doc = await Company.findOne({ name: req.body.name, password: req.body.password });
 

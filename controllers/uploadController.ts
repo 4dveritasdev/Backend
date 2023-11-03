@@ -1,11 +1,11 @@
 const upload = require("../utils/upload");
 const util = require("util");
 
-exports.index = (req, res) => {
+exports.index = (req: any, res: any) => {
     return res.render('index', { message: req.flash() });
 }
 
-exports.uploadSingle = (req, res, next) => {
+exports.uploadSingle = (req: any, res: any, next: any) => {
     try {
         if (req.file) {
             console.log(req.file)
@@ -19,7 +19,7 @@ exports.uploadSingle = (req, res, next) => {
     }
 }
 
-exports.uploadMultiple = (req, res) => {
+exports.uploadMultiple = (req: any, res: any) => {
     if (req.files.length) {
         console.log(req.files)
 
@@ -28,7 +28,7 @@ exports.uploadMultiple = (req, res) => {
     return res.redirect('/');
 }
 
-exports.uploadSingleV2 = async (req, res) => {
+exports.uploadSingleV2 = async (req: any, res: any) => {
     const uploadFile = util.promisify(upload.single('file'));
     try {
         await uploadFile(req, res);

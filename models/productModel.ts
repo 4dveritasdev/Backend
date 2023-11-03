@@ -17,7 +17,7 @@ const productSchema = new mongoose.Schema({
         default: ""
     },
     contract_address: {
-        type: String
+        type: Array
     },
     total_minted_amount: {
         type: Number,

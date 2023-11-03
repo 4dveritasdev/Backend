@@ -13,7 +13,7 @@ function currentDateTime() {
     return dateDisplay;
 }
 
-function formatDate(date) {
+function formatDate(date: any) {
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
@@ -27,7 +27,7 @@ function formatDate(date) {
     return [year, month, day].join('.');
 }
 
-function formatMonth(date) {
+function formatMonth(date: any) {
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),
         year = d.getFullYear();
@@ -38,7 +38,7 @@ function formatMonth(date) {
     return [year, month].join('.');
 }
 
-function formatYear(date) {
+function formatYear(date: any) {
     var d = new Date(date),
         year = '' + d.getFullYear();
 
