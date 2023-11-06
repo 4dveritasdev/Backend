@@ -7,9 +7,8 @@ const { Worker, isMainThread, parentPort, workerData } = require('worker_threads
 // require('ts-node').register();
 const { initClient, batchMint, getNonce } = require('../web3/index');
 // const qr = require('qr-image');
-const qrcode = require('qrcode')
 
-const divcount = 10000;
+const divcount = 4;
 const numThreads = 4;
 
 exports.getAllProducts = async(req: any, res: any, next: any) => {
@@ -68,85 +67,105 @@ exports.mint = async(req: any, res: any, next: any) => {
         //     runValidators: true
         // });
 
-        let qrcodeIds: any = [];
-        console.log(product);
+        console.log(req.body.amount);
         let start = new Date();
+        let contractAddres: any;
 
-        const qrCodePromises = [];
+        // if(p % 3 === 1) {
+            contractAddres = await initClient();
+            product.contract_address.push(contractAddres);
+        // }
 
-        for(let j = 0; j < numThreads; j ++) {
-            qrCodePromises.push(
-                new Promise((resolve: any, reject: any) => {
-                    const worker = new Worker(__filename, { execArgv: /\.ts$/.test(__filename) ? ["--require", "ts-node/register"] : undefined });
-                    worker.on('message', async (data: any) => {
-                        const { code } = data;
-                        const newQrCode = await QRcode.create({
-                            product_id: product._id,
-                            image: code
-                        });
-
-                        qrcodeIds.push((newQrCode._id).toString());
-                        if(qrcodeIds.length % 10000 === 0) {
-                            console.log(qrcodeIds.length, 'generating QR code completed');
-                            let end = new Date();
-                            console.log(end.getTime() - start.getTime())
-                        }
-                        if (qrcodeIds.length === req.body.amount) {
-                            // batchMint(product.contract_address, qrcodeIds);
-                            // console.log(qrcodeIds);
-                            // if(req.body.amount > divcount) {
-                            console.log('generating qr code finished.');
-                            if(qrcodeIds.length > divcount) {
-                                let contractAddres;
-                                for(let t = 0; t < qrcodeIds.length / divcount; t ++ ) {
-                                    if(t % 3 === 0) {
-                                        contractAddres = await initClient();
-                                        product.contract_address.push(contractAddres);
-                                    }
-                                    console.log('started', t, 'batch minting');
-                                    await batchMint(contractAddres, qrcodeIds.slice(t * divcount, (t + 1) * divcount));
-                                    let end = new Date();
-                                    console.log(end.getTime() - start.getTime())
-                                }
-                            } else {
-                                const contractAddres = await initClient();
-                                product.contract_address.push(contractAddres);
-                                console.log('start minting');
-                                await batchMint(contractAddres, qrcodeIds.slice((qrcodeIds.length / divcount - 1) * divcount));
+        for(let p = 1; p <= req.body.amount / divcount; p ++ ) {
+            console.log('step', p);
+            const qrCodePromises = [];
+            let qrcodeIds: any = [];
+            
+    
+            for(let j = 0; j < numThreads; j ++) {
+                qrCodePromises.push(
+                    new Promise((resolve: any, reject: any) => {
+                        const worker = new Worker(__filename, { execArgv: /\.ts$/.test(__filename) ? ["--require", "ts-node/register"] : undefined });
+                        worker.on('message', async (data: any) => {
+                            const { code } = data;
+                            const newQrCode = await QRcode.create({
+                                product_id: product._id,
+                                image: code
+                            });
+    
+                            qrcodeIds.push((newQrCode._id).toString());
+                            // if(qrcodeIds.length % 10000 === 0) {
+                            //     console.log(qrcodeIds.length, 'generating QR code completed');
+                            //     let end = new Date();
+                            //     console.log(end.getTime() - start.getTime())
+                            // }
+                            if (qrcodeIds.length === divcount) {
+                                // batchMint(product.contract_address, qrcodeIds);
+                                // console.log(qrcodeIds);
+                                // if(req.body.amount > divcount) {
+                                // console.log('generating qr code finished.');
                                 let end = new Date();
                                 console.log(end.getTime() - start.getTime())
+                                await batchMint(contractAddres, qrcodeIds);
+                                end = new Date();
+                                console.log(end.getTime() - start.getTime())
+                                // if(qrcodeIds.length > divcount) {
+                                //     for(let t = 0; t < qrcodeIds.length / divcount; t ++ ) {
+                                //         if(t % 3 === 0) {
+                                //             contractAddres = await initClient();
+                                //             product.contract_address.push(contractAddres);
+                                //         }
+                                //         console.log('started', t, 'batch minting');
+                                //         await batchMint(contractAddres, qrcodeIds.slice(t * divcount, (t + 1) * divcount));
+                                //         let end = new Date();
+                                //         console.log(end.getTime() - start.getTime())
+                                //     }
+                                // } else {
+                                //     const contractAddres = await initClient();
+                                //     product.contract_address.push(contractAddres);
+                                //     console.log('start minting');
+                                //     await batchMint(contractAddres, qrcodeIds.slice((qrcodeIds.length / divcount - 1) * divcount));
+                                //     let end = new Date();
+                                //     console.log(end.getTime() - start.getTime())
+                                // }
+                                // } else {
+                                //     await batchMint(product.contract_address, qrcodeIds);
+                                // }
+                                product.total_minted_amount += divcount;
+                                product.save();
+    
+                                if(p == req.body.amount / divcount) {
+                                    res.status(200).json({
+                                        status: 'success',
+                                        offset: product.total_minted_amount,
+                                    });
+                                }
                             }
-                            // } else {
-                            //     await batchMint(product.contract_address, qrcodeIds);
-                            // }
-                            product.total_minted_amount += req.body.amount;
-                            product.save();
-
-                            res.status(200).json({
-                                status: 'success',
-                                offset: product.total_minted_amount,
-                            });
+                            resolve();
+                        });
+                        
+                        worker.on('error', (error: any) => { console.log(error), reject(error)});
+    
+                        for (let i = 1; i <= divcount / numThreads; i ++) {
+                            const postData = { threadNumber: j, product, i };
+                            worker.postMessage(postData);
                         }
-                        resolve();
-                    });
-                    
-                    worker.on('error', (error: any) => { console.log(error), reject(error)});
-
-                    for (let i = 1; i <= req.body.amount / numThreads; i ++) {
-                        worker.postMessage({ threadNumber: j, product, i });
-                    }
-                })
-            );
+                    })
+                );
+            }
+    
+            await Promise.all(qrCodePromises);
         }
 
-        await Promise.all(qrCodePromises);
-
     } catch (error) {
+        console.log(error);
         next(error);
     }
 };
 
 if (!isMainThread) {
+    const qrcode = require('qrcode')
+
     // Worker thread code for generating a QR code
     parentPort.on('message', async (data: any) => {
         const { product, i, threadNumber } = data;
@@ -161,16 +180,14 @@ if (!isMainThread) {
         // Send the generated QR code back to the main thread
         parentPort.postMessage({ code: code });
     });
-  }
   
-const generateQRCode = (data: any) => {
-    return new Promise((resolve, reject) => {
-        qrcode.toDataURL(data, (err: any, code: any) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(code);
-            }
-        });
-    });
+    const generateQRCode = async (data: any) => {
+        try {
+            const code = await qrcode.toDataURL(data);
+            return code;
+        } catch (err) {
+            console.error(err);
+            throw err;
+        }
+    }
 }
