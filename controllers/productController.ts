@@ -2,13 +2,12 @@ const Product = require('../models/productModel');
 const QRcode = require('../models/qrcodeModel');
 const base = require('./baseController');
 const APIFeatures = require('../utils/apiFeatures');
-// const { generateQrCode } = require('../utils/generateQrCode');
 const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
-// require('ts-node').register();
 const { initClient, batchMint, getNonce } = require('../web3/index');
-// const qr = require('qr-image');
+const { encrypt, decrypt } = require('../utils/helper');
 
 const divcount = 10000;
+const mintcount = 15000;
 const numThreads = 4;
 
 const delay = (ms : any) => new Promise(resolve => setTimeout(resolve, ms))
@@ -40,9 +39,6 @@ exports.deleteProduct = base.deleteOne(Product);
 exports.addProduct = async(req: any, res: any, next: any) => {
     try {
         let product = req.body;
-
-        // const contractAddres = await initClient();
-        // product.contract_address = contractAddres;
         product.total_minted_amount = 0;
 
         const doc = await Product.create(product);
@@ -62,18 +58,11 @@ exports.addProduct = async(req: any, res: any, next: any) => {
 exports.mint = async(req: any, res: any, next: any) => {
     try {
         const product = await Product.findById(req.params.id);
-        // const product = await Product.findByIdAndUpdate(req.params.id, {
-        //     total_minted_amount: prev_product.total_minted_amount + req.body.amount
-        // }, {
-        //     new: true,
-        //     runValidators: true
-        // });
 
         console.log(req.body.amount);
         let start = new Date();
         let qrcodeIds: any = [];
         let p: any;
-
         for(p = 0; p < req.body.amount / divcount; p ++ ) {
             console.log('step', p);
             const qrCodePromises = [];
@@ -90,35 +79,17 @@ exports.mint = async(req: any, res: any, next: any) => {
                             });
     
                             qrcodeIds.push((newQrCode._id).toString());
-                            
-                            // if (qrcodeIds.length === divcount) {
-                            //     let end = new Date();
-                            //     console.log(end.getTime() - start.getTime())
-                            //     console.log(p - 1, Math.floor((p - 1) / 3), contractAddress[Math.floor((p - 1) / 3)], typeof contractAddress[Math.floor((p -1) / 3)]);
-                            //     await batchMint(contractAddress[Math.floor((p - 1) / 3)], qrcodeIds);
-                            //     end = new Date();
-                            //     console.log(end.getTime() - start.getTime())
-
-                            //     if(p % 3 === 0) {
-                            //         product.contract_address.push(contractAddress[Math.floor((p - 1) / 3)]);
-                            //     }
-                            //     product.total_minted_amount += divcount;
-                            //     product.save();
-    
-                            //     if(p == req.body.amount / divcount - 1) {
-                            //         res.status(200).json({
-                            //             status: 'success',
-                            //             offset: product.total_minted_amount,
-                            //         });
-                            //     }
-                            // }
                             resolve();
                         });
                         
                         worker.on('error', (error: any) => { console.log(error), reject(error)});
-    
+                        
                         for (let i = 1; i <= divcount / numThreads; i ++) {
-                            const postData = { threadNumber: j, product, i, p };
+                            const productData = {
+                                _id: String(product._id),
+                                total_minted_amount: product.total_minted_amount + i + j * divcount / numThreads + p * divcount
+                            };
+                            const postData = { threadNumber: j, product: productData, i, p };
                             worker.postMessage(postData);
                         }
                     })
@@ -139,19 +110,25 @@ exports.mint = async(req: any, res: any, next: any) => {
         console.log(end.getTime() - start.getTime())
         let contract_address: any;
 
-        // for(p = 0; p < req.body.amount / divcount; p ++ ) {
-        //     if(p % 3 === 0) {
-        //         contract_address = await initClient();
-        //         product.contract_address.push(contract_address);
-        //         await delay(4000);
-        //     }
+        for(p = 0; p < req.body.amount / mintcount; p ++ ) {
+            if(p % 2 === 0) {
+                contract_address = await initClient();
+                product.contract_address.push(contract_address);
+                // await delay(4000);
+            }
 
-        //     console.log(p, contract_address);
-        //     await batchMint(contract_address, qrcodeIds.slice(p * divcount, (p + 1) * divcount));
-        //     end = new Date();
-        //     console.log(end.getTime() - start.getTime())
-        //     await delay(4000);
-        // }
+            console.log(p, contract_address);
+
+            if (req.body.amount % mintcount > 0 && p == Math.floor(req.body.amount / mintcount)) {
+                console.log('last');
+                await batchMint(contract_address, qrcodeIds.slice(p * mintcount));
+            } else {
+                await batchMint(contract_address, qrcodeIds.slice(p * mintcount, (p + 1) * mintcount));
+            }
+            end = new Date();
+            console.log(end.getTime() - start.getTime())
+            // await delay(4000);
+        }
         
         product.total_minted_amount += req.body.amount;
         product.save();
@@ -172,13 +149,15 @@ if (!isMainThread) {
     // Worker thread code for generating a QR code
     parentPort.on('message', async (data: any) => {
         const { product, i, threadNumber, p } = data;
+        // console.log(product);
         const stringdata = JSON.stringify({
-            company_id: product.company_id,
             product_id: product._id,
-            token_id: product.total_minted_amount + i + threadNumber * numThreads + p * divcount,
+            token_id: product.total_minted_amount,
         });
+        // console.log(stringdata);
+        const encryptData = encrypt(stringdata);
     
-        const code: any = await generateQRCode(stringdata);
+        const code: any = await generateQRCode(encryptData);
         
         // Send the generated QR code back to the main thread
         parentPort.postMessage({ code: code });
