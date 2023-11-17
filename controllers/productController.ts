@@ -59,7 +59,7 @@ exports.mint = async(req: any, res: any, next: any) => {
     try {
         const product = await Product.findById(req.params.id);
 
-        console.log(req.body.amount);
+        console.log(product);
         let start = new Date();
         let qrcodeIds: any = [];
         let p: any;
@@ -95,7 +95,7 @@ exports.mint = async(req: any, res: any, next: any) => {
                     })
                 );
             }
-    
+              
             await Promise.all(qrCodePromises);
         }
         console.log('qrcodes', qrcodeIds.length);
@@ -138,7 +138,6 @@ exports.mint = async(req: any, res: any, next: any) => {
             offset: product.total_minted_amount,
         });
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };
