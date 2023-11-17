@@ -1,6 +1,8 @@
 const QRcode = require('../models/qrcodeModel');
 const base = require('./baseController');
 const APIFeatures = require('../utils/apiFeatures');
+const { encrypt, decrypt } = require('../utils/helper');
+const Product = require('../models/productModel');
 
 exports.getAllQRcodes = base.getAll(QRcode);
 exports.getQRcode = base.getOne(QRcode);
@@ -26,4 +28,25 @@ exports.getQRcodesWithProductId = async(req: any, res: any, next: any) => {
         next(error);
     }
 
+};
+
+exports.decrypt = async (req: any, res: any, next: any) => { 
+    try {
+        console.log(req.body.encryptData);
+        const data = JSON.parse(decrypt(req.body.encryptData));
+        console.log(data);
+        const product = await Product.findById(data.product_id);
+        console.log(product);
+        const resData = {
+            token_id: data.token_id,
+            ...product._doc
+        };
+        
+        res.status(200).json({
+            status: 'success',
+            data: resData
+        });
+    } catch (error) {
+        next(error);
+    }
 };

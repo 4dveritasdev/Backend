@@ -7,6 +7,7 @@ const QRcodeController = require('../controllers/qrcodeController');
 
 router.get('/', QRcodeController.getAllQRcodes);
 router.post('/product', QRcodeController.getQRcodesWithProductId);
+router.post('/decrypt', QRcodeController.decrypt);
 router.get('/:id', QRcodeController.getQRcode);
 router.post('/', QRcodeController.addQRcode);
 router.put('/:id', QRcodeController.updateQRcode);

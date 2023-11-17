@@ -1,4 +1,4 @@
-
+const crypto = require('crypto');
 
 function currentDateTime() {
     let date_ob = new Date();
@@ -45,4 +45,18 @@ function formatYear(date: any) {
     return year;
 }
 
-module.exports = { currentDateTime, formatDate, formatMonth, formatYear };
+function encrypt(text: any) {
+    let cipher = crypto.createCipheriv(process.env.ENCRYPT_ALGORITHM, process.env.AES_KEY, process.env.AES_IV);
+    let encrypted = cipher.update(text, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
+    return encrypted;
+}
+
+function decrypt(encrypted: any) {
+    let decipher = crypto.createDecipheriv(process.env.ENCRYPT_ALGORITHM, process.env.AES_KEY, process.env.AES_IV);
+    let decrypted = decipher.update(encrypted, 'base64', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+}
+
+module.exports = { currentDateTime, formatDate, formatMonth, formatYear, encrypt, decrypt };
