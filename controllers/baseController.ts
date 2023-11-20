@@ -1,4 +1,4 @@
-import AppError from '../utils/appError';
+const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 const path  = require('path');
 const sharp = require('sharp');
