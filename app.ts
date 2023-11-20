@@ -53,12 +53,12 @@ app.use(xss());
 app.use(hpp());
 
 // Routes
-app.use('/company', companyRoutes);
-app.use('/product', productRoutes);
-app.use('/upload', uploadRoutes);
-app.use('/qrcode', qrcodeRoutes);
+app.use('/api/v1/company', companyRoutes);
+app.use('/api/v1/product', productRoutes);
+app.use('/api/v1/upload', uploadRoutes);
+app.use('/api/v1/qrcode', qrcodeRoutes);
 
-app.use('/files', express.static('uploads'));
+app.use('/api/v1/files', express.static('uploads'));
 
 //handle undefined Routes
 app.use('*', (req: any, res: any, next: any) => {
