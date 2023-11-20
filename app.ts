@@ -53,7 +53,7 @@ app.use(xss());
 app.use(hpp());
 
 // Routes
-app.use('/api/v1/company', companyRoutes);
+app.use('/company', companyRoutes);
 app.use('/api/v1/product', productRoutes);
 app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/qrcode', qrcodeRoutes);
