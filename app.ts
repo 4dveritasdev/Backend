@@ -62,7 +62,7 @@ app.use('/api/v1/files', express.static('uploads'));
 
 //handle undefined Routes
 app.use('*', (req: any, res: any, next: any) => {
-    console.log(req.method);
+    console.log(req.params);
     const err = new AppError(404, 'fail', 'undefined route');
     next(err, req, res, next);
 });
