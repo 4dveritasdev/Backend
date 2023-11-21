@@ -63,6 +63,7 @@ exports.mint = async(req: any, res: any, next: any) => {
         let start = new Date();
         let qrcodeIds: any = [];
         let p: any;
+        console.log(req.body.amount / divcount);
         for(p = 0; p < req.body.amount / divcount; p ++ ) {
             console.log('step', p);
             const qrCodePromises = [];
@@ -83,11 +84,16 @@ exports.mint = async(req: any, res: any, next: any) => {
                         });
                         
                         worker.on('error', (error: any) => { console.log(error), reject(error)});
-                        
-                        for (let i = 1; i <= divcount / numThreads; i ++) {
+
+                        let pamount = divcount;
+                        if ((p + 1) * divcount > req.body.amount) {
+                            pamount = req.body.amount % divcount;
+                        }
+                        console.log(pamount);
+                        for (let i = 1; i <= pamount / numThreads; i ++) {
                             const productData = {
                                 _id: String(product._id),
-                                total_minted_amount: product.total_minted_amount + i + j * divcount / numThreads + p * divcount
+                                total_minted_amount: product.total_minted_amount + i + j * pamount / numThreads + p * divcount
                             };
                             const postData = { threadNumber: j, product: productData, i, p };
                             worker.postMessage(postData);
@@ -102,7 +108,7 @@ exports.mint = async(req: any, res: any, next: any) => {
         let end = new Date();
         console.log(end.getTime() - start.getTime())
 
-        while(qrcodeIds.length != req.body.amount) {
+        while(qrcodeIds.length < req.body.amount) {
             await delay(2000);
             console.log('qrcodes', qrcodeIds.length);
         }
