@@ -3,6 +3,7 @@ const base = require('./baseController');
 const APIFeatures = require('../utils/apiFeatures');
 const { encrypt, decrypt } = require('../utils/helper');
 const Product = require('../models/productModel');
+const { getProductMetadataFromSC } = require('../web3/index');
 
 exports.getAllQRcodes = base.getAll(QRcode);
 exports.getQRcode = base.getOne(QRcode);
@@ -37,9 +38,11 @@ exports.decrypt = async (req: any, res: any, next: any) => {
         console.log(data);
         const product = await Product.findById(data.product_id);
         console.log(product);
+        const tokenMetadata = await getProductMetadataFromSC(product.contract_address[Math.floor(data.token_id / 30000)], data.token_id % 30000);
         const resData = {
             token_id: data.token_id,
-            ...product._doc
+            ...product._doc,
+            ...tokenMetadata
         };
         
         res.status(200).json({

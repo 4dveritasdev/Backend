@@ -99,7 +99,7 @@ type ChainIdData = { chainId: string };
 type AccountState = { nonce: string };
 
 /** dto of a zk contract on the blockchain. */
-export type ZkContract = { serializedContract: { engines: { engines: Engine[] } } };
+export type ZkContract = { serializedContract: { state: { data: string } } };
 
 /** dto of an engine in the zk contract object. */
 export interface Engine {

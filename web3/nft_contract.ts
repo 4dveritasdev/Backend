@@ -5,7 +5,7 @@ import {
   AbiParser,
   AbstractBuilder, BigEndianReader,
   FileAbi, FnKinds, FnRpcBuilder, RpcReader,
-  ScValue,
+  ScValue,ScValueNumber,
   ScValueEnum, ScValueOption,
   ScValueStruct,
   StateReader, TypeIndex,
@@ -48,29 +48,35 @@ function buildRpcTransfer(value: Transfer, builder: AbstractBuilder) {
   structBuilder.addU128(value.amount);
 }
 
+interface MetaData {
+  status: string,
+  mpg_time: string,
+  exp_time: string
+}
+
 export interface TokenState {
   name: string;
-  decimals: number;
   symbol: string;
   owner: BlockchainAddress;
   totalSupply: BN;
-  balances: Map<BlockchainAddress, BN>;
-  allowed: Map<BlockchainAddress, Map<BlockchainAddress, BN>>;
+  // balances: Map<BlockchainAddress, BN>;
+  // allowed: Map<BlockchainAddress, Map<BlockchainAddress, BN>>;
+  metadata: Array<MetaData>;
 }
 
-export function newTokenState(name: string, decimals: number, symbol: string, owner: BlockchainAddress, totalSupply: BN, balances: Map<BlockchainAddress, BN>, allowed: Map<BlockchainAddress, Map<BlockchainAddress, BN>>): TokenState {
-  return {name, decimals, symbol, owner, totalSupply, balances, allowed}
-}
+// export function newTokenState(name: string, decimals: number, symbol: string, owner: BlockchainAddress, totalSupply: BN, balances: Map<BlockchainAddress, BN>, allowed: Map<BlockchainAddress, Map<BlockchainAddress, BN>>): TokenState {
+//   return {name, decimals, symbol, owner, totalSupply, balances, allowed}
+// }
 
 function fromScValueTokenState(structValue: ScValueStruct): TokenState {
   return {
     name: structValue.getFieldValue("name")!.stringValue(),
-    decimals: structValue.getFieldValue("decimals")!.asNumber(),
     symbol: structValue.getFieldValue("symbol")!.stringValue(),
-    owner: BlockchainAddress.fromBuffer(structValue.getFieldValue("owner")!.addressValue().value),
-    totalSupply: structValue.getFieldValue("total_supply")!.asBN(),
-    balances: new Map([...structValue.getFieldValue("balances")!.mapValue().map].map(([k1, v2]) => [BlockchainAddress.fromBuffer(k1.addressValue().value), v2.asBN()])),
-    allowed: new Map([...structValue.getFieldValue("allowed")!.mapValue().map].map(([k3, v4]) => [BlockchainAddress.fromBuffer(k3.addressValue().value), new Map([...v4.mapValue().map].map(([k5, v6]) => [BlockchainAddress.fromBuffer(k5.addressValue().value), v6.asBN()]))])),
+    owner: BlockchainAddress.fromBuffer(structValue.getFieldValue("contract_owner")!.addressValue().value),
+    totalSupply: structValue.getFieldValue("total_count")!.asBN(),
+    // balances: new Map([...structValue.getFieldValue("balances")!.mapValue().map].map(([k1, v2]) => [BlockchainAddress.fromBuffer(k1.addressValue().value), v2.asBN()])),
+    // allowed: new Map([...structValue.getFieldValue("allowed")!.mapValue().map].map(([k3, v4]) => [BlockchainAddress.fromBuffer(k3.addressValue().value), new Map([...v4.mapValue().map].map(([k5, v6]) => [BlockchainAddress.fromBuffer(k5.addressValue().value), v6.asBN()]))])),
+    metadata: [...structValue.getFieldValue("token_uri_details")!.mapValue().map].map(([k1, v2]) => ({status: v2.structValue().getFieldValue('status')!.stringValue(), mpg_time: v2.structValue().getFieldValue('mpg_time')!.stringValue(), exp_time: v2.structValue().getFieldValue('exp_time')!.stringValue()})),
   };
 }
 

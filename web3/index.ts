@@ -1,6 +1,6 @@
 import {BlockchainAddress} from "@partisiablockchain/abi-client-ts";
 import BN from "bn.js";
-import {initialize, batch_mint} from "./nft_contract";
+import {initialize, batch_mint, deserializeTokenState} from "./nft_contract";
 import {deployContractWithBinderId} from "./pub_deploy"
 import {Client} from "./utils/Client";
 import {TransactionSender} from "./utils/TransactionSender";
@@ -86,6 +86,19 @@ export const getNonce = async () : Promise<any> => {
   let account: BlockchainAddress = BlockchainAddress.fromString(SENDER_PUBLICK_KEY);
   const res = await client.getAccountState(account);
   return res?.nonce;
+}
+
+export const getProductMetadataFromSC = async (contract_address: string, token_id: number) : Promise<any> => {
+  console.log('Fetch Status from SC');
+  let contractAddress: BlockchainAddress = BlockchainAddress.fromString(contract_address);
+  const contract = await client.getContractState(contractAddress);
+  if (contract != null) {
+    const stateBuffer = Buffer.from(contract.serializedContract.state.data, "base64");
+    const state = deserializeTokenState(stateBuffer);
+    console.log(state.metadata[token_id]);
+    return state.metadata[token_id];
+  }
+  return true;
 }
 
 // (async () => {
