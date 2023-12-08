@@ -55,14 +55,14 @@ export const initClient = async () => {
 
 export const batchMint = async (contract_address: string, qrcodes: string[]) => {
   try {
-    console.log("batch mint");
+    console.log("batch mint", contract_address, qrcodes);
     
     // This contract address is pub-deploy
     let contractAddress: BlockchainAddress = BlockchainAddress.fromString(
         contract_address);
 
     const transactionSender = TransactionSender.create(client, SENDER_PRIVATE_KEY);
-    const rpc = batch_mint(SENDER_PUBLICK_KEY, qrcodes, 'minted', '2023.10.20', '2023.10.20');
+    const rpc = batch_mint(SENDER_PUBLICK_KEY, qrcodes, 'minted', '2023.12.08', '2024.12.08');
 
     // Send the transaction
     const transactionPointer = await transactionSender.sendAndSign(
