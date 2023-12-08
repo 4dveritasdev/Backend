@@ -7,6 +7,7 @@ import {TransactionSender} from "./utils/TransactionSender";
 import {CryptoUtils} from "./utils/CryptoUtil";
 
 var fs = require("fs");
+const delay = (ms : any) => new Promise(resolve => setTimeout(resolve, ms))
 
 const TESTNET_URL = "https://node1.testnet.partisiablockchain.com";
 const client = new Client(TESTNET_URL);
@@ -56,7 +57,7 @@ export const initClient = async () => {
 export const batchMint = async (contract_address: string, qrcodes: string[]) => {
   try {
     console.log("batch mint", contract_address, qrcodes);
-    
+    await delay(2000);
     // This contract address is pub-deploy
     let contractAddress: BlockchainAddress = BlockchainAddress.fromString(
         contract_address);
