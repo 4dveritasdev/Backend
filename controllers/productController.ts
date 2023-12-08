@@ -1,3 +1,4 @@
+const AppError = require('../utils/appError');
 const Product = require('../models/productModel');
 const QRcode = require('../models/qrcodeModel');
 const base = require('./baseController');
@@ -38,8 +39,16 @@ exports.deleteProduct = base.deleteOne(Product);
 
 exports.addProduct = async(req: any, res: any, next: any) => {
     try {
+
         let product = req.body;
         product.total_minted_amount = 0;
+
+        console.log(product);
+        const data = await Product.findOne({ name: product.name, detail: product.detail });
+        console.log(data);
+        if(data) {
+            return next(new AppError(404, 'fail', 'product already exists'), req, res, next);
+        }
 
         const doc = await Product.create(product);
 
