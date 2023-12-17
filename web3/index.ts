@@ -97,8 +97,8 @@ export const getProductMetadataFromSC = async (contract_address: string, token_i
     const stateBuffer = Buffer.from(contract.serializedContract.state.data, "base64");
     const state = deserializeTokenState(stateBuffer);
     console.log(state);
-    console.log(state.metadata[token_id]);
-    return state.metadata[token_id];
+    console.log(state.metadata[token_id - 1]);
+    return state.metadata[token_id - 1];
   }
   return true;
 }
