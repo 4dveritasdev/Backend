@@ -11,7 +11,7 @@ exports.updateCompany = base.updateOne(Company);
 exports.deleteCompany = base.deleteOne(Company);
 exports.addCompany = async(req: any, res: any, next: any) => {
     try {
-        const company = Company.find({ name: req.body.name });
+        const company = await Company.findOne({ name: req.body.name });
         console.log(company)
         if(company) {
             return next(new AppError(400, 'fail', 'Already exists the company'), req, res, next);
