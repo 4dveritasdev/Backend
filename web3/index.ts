@@ -56,7 +56,7 @@ export const initClient = async () => {
 
 export const batchMint = async (contract_address: string, qrcodes: string[]) => {
   try {
-    console.log("batch mint", contract_address, qrcodes);
+    console.log("batch mint", contract_address);
     await delay(2000);
     // This contract address is pub-deploy
     let contractAddress: BlockchainAddress = BlockchainAddress.fromString(

@@ -73,7 +73,7 @@ exports.mint = async(req: any, res: any, next: any) => {
         let qrcodeIds: any = [];
         let p: any;
         console.log(req.body.amount / divcount);
-        for(p = 0; p < req.body.amount / divcount; p ++ ) {
+        for(p = 0; p < Math.floor(req.body.amount / divcount); p ++ ) {
             console.log('step', p);
             const qrCodePromises = [];
     
@@ -94,15 +94,15 @@ exports.mint = async(req: any, res: any, next: any) => {
                         
                         worker.on('error', (error: any) => { console.log(error), reject(error)});
 
-                        let pamount = divcount;
-                        if ((p + 1) * divcount > req.body.amount) {
-                            pamount = req.body.amount % divcount;
-                        }
-                        console.log(pamount);
-                        for (let i = 1; i <= pamount / numThreads; i ++) {
+                        // let pamount = divcount;
+                        // if ((p + 1) * divcount > req.body.amount) {
+                        //     pamount = req.body.amount % divcount;
+                        // }
+                        // console.log(pamount);
+                        for (let i = 1; i <= divcount / numThreads; i ++) {
                             const productData = {
                                 _id: String(product._id),
-                                total_minted_amount: product.total_minted_amount + i + j * pamount / numThreads + p * divcount
+                                total_minted_amount: product.total_minted_amount + i + j * divcount / numThreads + p * divcount
                             };
                             const postData = { threadNumber: j, product: productData, i, p };
                             worker.postMessage(postData);
@@ -110,11 +110,42 @@ exports.mint = async(req: any, res: any, next: any) => {
                     })
                 );
             }
-              
+            
             await Promise.all(qrCodePromises);
         }
+
         console.log('qrcodes', qrcodeIds.length);
         let end = new Date();
+        console.log(end.getTime() - start.getTime())
+
+        // while(qrcodeIds.length < req.body.amount) {
+        //     await delay(2000);
+        //     console.log('qrcodes', qrcodeIds.length);
+        // }
+        // end = new Date();
+        // console.log(end.getTime() - start.getTime())
+
+        
+        console.log("rest", req.body.amount % divcount);
+        const qrcode = require('qrcode')
+        for(let i = 1; i <= req.body.amount % divcount; i ++) {
+            const stringdata = JSON.stringify({
+                product_id: product._id,
+                token_id: product.total_minted_amount + i,
+            });
+            // console.log(stringdata);
+            const encryptData = encrypt(stringdata);
+
+            const code = await qrcode.toDataURL(encryptData);
+            const newQrCode = await QRcode.create({
+                product_id: product._id,
+                image: code
+            });
+
+            qrcodeIds.push((newQrCode._id).toString());
+        }
+
+        end = new Date();
         console.log(end.getTime() - start.getTime())
 
         while(qrcodeIds.length < req.body.amount) {
@@ -123,6 +154,7 @@ exports.mint = async(req: any, res: any, next: any) => {
         }
         end = new Date();
         console.log(end.getTime() - start.getTime())
+
         let contract_address: any;
 
         for(p = 0; p < req.body.amount / mintcount; p ++ ) {
