@@ -90,12 +90,13 @@ export const getNonce = async () : Promise<any> => {
 }
 
 export const getProductMetadataFromSC = async (contract_address: string, token_id: number) : Promise<any> => {
-  console.log('Fetch Status from SC');
+  console.log('Fetch Status from SC', contract_address);
   let contractAddress: BlockchainAddress = BlockchainAddress.fromString(contract_address);
   const contract = await client.getContractState(contractAddress);
   if (contract != null) {
     const stateBuffer = Buffer.from(contract.serializedContract.state.data, "base64");
     const state = deserializeTokenState(stateBuffer);
+    console.log(state);
     console.log(state.metadata[token_id]);
     return state.metadata[token_id];
   }
