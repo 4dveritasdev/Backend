@@ -42,6 +42,7 @@ app.use('/api', limiter);
 app.use(express.json({
     limit: '100mb'
 }));
+app.use(express.urlencoded({limit: '100mb'}));
 
 // Data sanitization against Nosql query injection
 app.use(mongoSanitize());
