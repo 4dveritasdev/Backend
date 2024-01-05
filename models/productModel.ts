@@ -9,11 +9,14 @@ const productSchema = new mongoose.Schema({
         type: String,
         require: true
     },
+    model: {
+        type: String,
+    },
     detail: {
         type: String,
     },
-    image_url: {
-        type: String,
+    images: {
+        type: Array,
     },
     status: {
         type: String,

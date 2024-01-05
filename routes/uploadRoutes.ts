@@ -7,6 +7,7 @@ const upload = require('../utils/upload');
 // router.use(authController.protect);
 
 router.post('/single', upload.single('file'), uploadController.uploadSingle);
+router.post('/multiple', upload.array('files'), uploadController.uploadMultiple);
 
 
 module.exports = router;

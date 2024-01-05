@@ -19,13 +19,22 @@ exports.uploadSingle = (req: any, res: any, next: any) => {
     }
 }
 
-exports.uploadMultiple = (req: any, res: any) => {
-    if (req.files.length) {
-        console.log(req.files)
-
-        req.flash('success', 'Files Uploaded.');
+exports.uploadMultiple = (req: any, res: any, next: any) => {
+    try {
+        if (req.files.length) {
+            let images = [];
+            for(let i = 0; i < req.files.length ; ++ i) {
+                images.push(req.files[i].filename);
+            }
+            res.status(200).json({
+                status: 'success',
+                files: images
+            });
+        }
+    } catch (err) {
+        next(err);
     }
-    return res.redirect('/');
+    // return res.redirect('/');
 }
 
 exports.uploadSingleV2 = async (req: any, res: any) => {
