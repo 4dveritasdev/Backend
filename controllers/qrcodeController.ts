@@ -39,10 +39,13 @@ exports.decrypt = async (req: any, res: any, next: any) => {
         const product = await Product.findById(data.product_id);
         console.log(product);
         const tokenMetadata = await getProductMetadataFromSC(product.contract_address[Math.floor(data.token_id / 30000)], data.token_id % 30000);
+
+        const qrcode  = await QRcode.find({product_id: data.product_id});
         const resData = {
             token_id: data.token_id,
             ...product._doc,
-            ...tokenMetadata
+            ...tokenMetadata,
+            qrcode_img: qrcode[data.token_id - 1].image
         };
         
         res.status(200).json({
