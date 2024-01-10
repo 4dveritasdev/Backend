@@ -18,6 +18,12 @@ const productSchema = new mongoose.Schema({
     images: {
         type: Array,
     },
+    files: {
+        type: Array,
+    },
+    videos: {
+        type: Array,
+    },
     status: {
         type: String,
         default: ""
