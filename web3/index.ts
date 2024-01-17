@@ -6,6 +6,20 @@ import {Client} from "./utils/Client";
 import {TransactionSender} from "./utils/TransactionSender";
 import {CryptoUtils} from "./utils/CryptoUtil";
 
+function formatDate(date: any) {
+  var d = new Date(date),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+  if (month.length < 2) 
+      month = '0' + month;
+  if (day.length < 2) 
+      day = '0' + day;
+
+  return [year, month, day].join('.');
+}
+
 var fs = require("fs");
 const delay = (ms : any) => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -62,8 +76,13 @@ export const batchMint = async (contract_address: string, qrcodes: string[]) => 
     let contractAddress: BlockchainAddress = BlockchainAddress.fromString(
         contract_address);
 
+    let cDate = new Date();
+    let startDate = formatDate(cDate);
+    let endDate = formatDate(cDate.setFullYear(cDate.getFullYear() + 1));
+    console.log(startDate, endDate);
+
     const transactionSender = TransactionSender.create(client, SENDER_PRIVATE_KEY);
-    const rpc = batch_mint(SENDER_PUBLICK_KEY, qrcodes, 'minted', '2023.12.08', '2024.12.08');
+    const rpc = batch_mint(SENDER_PUBLICK_KEY, qrcodes, 'minted', startDate, endDate);
 
     // Send the transaction
     const transactionPointer = await transactionSender.sendAndSign(
