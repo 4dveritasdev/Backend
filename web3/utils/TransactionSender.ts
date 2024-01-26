@@ -1,6 +1,6 @@
 import {ec as Elliptic} from "elliptic";
 import BN from "bn.js";
-import {BlockchainAddress} from "@partisiablockchain/abi-client-ts";
+import {BlockchainAddress} from "@partisiablockchain/abi-client";
 import {CryptoUtils} from "./CryptoUtil";
 
 import {Client, TransactionPointer} from "./Client";

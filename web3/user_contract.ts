@@ -14,7 +14,7 @@ import {
 import {BigEndianByteOutput} from "@secata-public/bitmanipulation-ts";
 var fs = require("fs");
 
-const fileAbi: FileAbi = new AbiParser(fs.readFileSync("./web3/nft_contract.abi")).parseAbi();
+const fileAbi: FileAbi = new AbiParser(fs.readFileSync("./web3/user_contract.abi")).parseAbi();
 // console.log(abiBytes);
 
 // const fileAbi: FileAbi = new AbiParser(Buffer.from(
@@ -60,7 +60,8 @@ export interface TokenState {
   totalSupply: BN;
   // balances: Map<BlockchainAddress, BN>;
   // allowed: Map<BlockchainAddress, Map<BlockchainAddress, BN>>;
-  metadata: Array<MetaData>;
+  // metadata: Array<MetaData>;
+  userIdtoTokenId: Map<String, BN>;
 }
 
 // export function newTokenState(name: string, decimals: number, symbol: string, owner: BlockchainAddress, totalSupply: BN, balances: Map<BlockchainAddress, BN>, allowed: Map<BlockchainAddress, Map<BlockchainAddress, BN>>): TokenState {
@@ -75,11 +76,12 @@ function fromScValueTokenState(structValue: ScValueStruct): TokenState {
     totalSupply: structValue.getFieldValue("total_count")!.asBN(),
     // balances: new Map([...structValue.getFieldValue("balances")!.mapValue().map].map(([k1, v2]) => [BlockchainAddress.fromBuffer(k1.addressValue().value), v2.asBN()])),
     // allowed: new Map([...structValue.getFieldValue("allowed")!.mapValue().map].map(([k3, v4]) => [BlockchainAddress.fromBuffer(k3.addressValue().value), new Map([...v4.mapValue().map].map(([k5, v6]) => [BlockchainAddress.fromBuffer(k5.addressValue().value), v6.asBN()]))])),
-    metadata: [...structValue.getFieldValue("token_uri_details")!.mapValue().map].map(([k1, v2]) => ({status: v2.structValue().getFieldValue('status')!.stringValue(), mpg_time: v2.structValue().getFieldValue('mpg_time')!.stringValue(), exp_time: v2.structValue().getFieldValue('exp_time')!.stringValue()})),
+    // metadata: [...structValue.getFieldValue("token_uri_details")!.mapValue().map].map(([k1, v2]) => ({status: v2.structValue().getFieldValue('status')!.stringValue(), mpg_time: v2.structValue().getFieldValue('mpg_time')!.stringValue(), exp_time: v2.structValue().getFieldValue('exp_time')!.stringValue()})),
+    userIdtoTokenId: new Map([...structValue.getFieldValue("user_id_to_token_id")!.mapValue().map].map(([k1, v2]) => [k1.stringValue(), v2.asBN()])),
   };
 }
 
-export function deserializeTokenState(bytes: Buffer): TokenState {
+export function deserializeUserState(bytes: Buffer): TokenState {
   const scValue = new StateReader(bytes, fileAbi.contract).readState();
   return fromScValueTokenState(scValue);
 }
@@ -98,23 +100,20 @@ function fromScValueSecretVarId(structValue: ScValueStruct): SecretVarId {
   };
 }
 
-export function initialize(name: string, symbol: string, user_contract: string, url_template: string): Buffer {
+export function initialize(name: string, symbol: string, url_template: string): Buffer {
   const fnBuilder = new FnRpcBuilder("initialize", fileAbi.contract);
   fnBuilder.addString(name);
   fnBuilder.addString(symbol);
-  fnBuilder.addAddress(user_contract);
   fnBuilder.addString(url_template);
   return fnBuilder.getBytes();
 }
 
-export function batch_mint(to:string, count:BN, status:string, mpg_time:string, exp_time:string): Buffer {
-  const fnBuilder = new FnRpcBuilder("batch_mint", fileAbi.contract);
-  const encodedAddress = Buffer.from(to, "hex");
-  fnBuilder.addAddress(encodedAddress);
-  fnBuilder.addU128(count);
-  fnBuilder.addString(status);
-  fnBuilder.addString(mpg_time);
-  fnBuilder.addString(exp_time);
+export function mint(id:string, wallet:string): Buffer {
+  console.log(id, wallet);
+  const fnBuilder = new FnRpcBuilder("mint", fileAbi.contract);
+
+  fnBuilder.addString(id);
+  fnBuilder.addAddress(wallet);
 
   return fnBuilder.getBytes();
 }

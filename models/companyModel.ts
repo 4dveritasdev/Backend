@@ -17,6 +17,12 @@ const companySchema = new mongoose.Schema({
     },
     location: {
         type: String
+    },
+    wallet: {
+        type: String
+    },
+    privateKey: {
+        type: String
     }
 });
 

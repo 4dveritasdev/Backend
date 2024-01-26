@@ -1,10 +1,11 @@
-import {BlockchainAddress} from "@partisiablockchain/abi-client-ts";
+import {BlockchainAddress} from "@partisiablockchain/abi-client";
 import BN from "bn.js";
 import {initialize, batch_mint, deserializeTokenState} from "./nft_contract";
 import {deployContractWithBinderId} from "./pub_deploy"
 import {Client} from "./utils/Client";
 import {TransactionSender} from "./utils/TransactionSender";
 import {CryptoUtils} from "./utils/CryptoUtil";
+import { deserializeUserState, mint } from "./user_contract";
 
 function formatDate(date: any) {
   var d = new Date(date),
@@ -28,6 +29,7 @@ const client = new Client(TESTNET_URL);
 
 let SENDER_PRIVATE_KEY: string = "4931e8190e5ef42c225c86845abe7934dd704ca9d133d5dc7128c8e04db00ca6";
 let SENDER_PUBLICK_KEY: string = "00eacdb88750935eb88610a9a69cb22334965b8225";
+let USER_SC_ADDRESS: string = "02948ad3262c9233427eb1c8f54f176350580b1c26";
 //4931e8190e5ef42c225c86845abe7934dd704ca9d133d5dc7128c8e04db00ca6
 //2e4fd54916e7e953cffd11bf13cc952e07863f957f8264be4f9ea1a1d9d5904c
 
@@ -41,11 +43,11 @@ export const initClient = async () => {
 
     const transactionSender = TransactionSender.create(client, SENDER_PRIVATE_KEY);
 
-    const initPayload = initialize("name", "symbol", "https://example.com");
+    const initPayload = initialize("name", "symbol", USER_SC_ADDRESS, "https://example.com");
 
     const wasmBytes: Buffer = fs.readFileSync("./web3/nft_contract.wasm");
     const abiBytes: Buffer = fs.readFileSync("./web3/nft_contract.abi");
-    const rpc = deployContractWithBinderId(wasmBytes, abiBytes, initPayload, 1);
+    const rpc = deployContractWithBinderId(wasmBytes, abiBytes, initPayload, 4);
 
     // Send the transaction
     const transactionPointer = await transactionSender.sendAndSign(
@@ -68,7 +70,34 @@ export const initClient = async () => {
   }
 };
 
-export const batchMint = async (contract_address: string, qrcodes: string[]) => {
+export const mintUser = async (id: string, wallet: string) => {
+  try {
+    console.log("mint user to", USER_SC_ADDRESS);
+    // This contract address is pub-deploy
+    let contractAddress: BlockchainAddress = BlockchainAddress.fromString(USER_SC_ADDRESS);
+
+    const transactionSender = TransactionSender.create(client, SENDER_PRIVATE_KEY);
+    const rpc = mint(id, wallet);
+
+    // Send the transaction
+    const transactionPointer = await transactionSender.sendAndSign(
+        {
+          address: contractAddress,
+          rpc: rpc,
+        },
+        new BN(100000)
+    );
+
+    const txIdentifier = transactionPointer.transactionPointer.identifier.toString("hex");
+    // eslint-disable-next-line no-console
+    console.log("Sent input in transaction: " + txIdentifier);
+
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const batchMint = async (contract_address: string, count: number) => {
   try {
     console.log("batch mint", contract_address);
     await delay(2000);
@@ -82,7 +111,7 @@ export const batchMint = async (contract_address: string, qrcodes: string[]) => 
     console.log(startDate, endDate);
 
     const transactionSender = TransactionSender.create(client, SENDER_PRIVATE_KEY);
-    const rpc = batch_mint(SENDER_PUBLICK_KEY, qrcodes, 'minted', startDate, endDate);
+    const rpc = batch_mint(SENDER_PUBLICK_KEY, new BN(count), 'minted', startDate, endDate);
 
     // Send the transaction
     const transactionPointer = await transactionSender.sendAndSign(
@@ -90,7 +119,7 @@ export const batchMint = async (contract_address: string, qrcodes: string[]) => 
           address: contractAddress,
           rpc: rpc,
         },
-        new BN(5000000)
+        new BN(300000)
     );
 
     const txIdentifier = transactionPointer.transactionPointer.identifier.toString("hex");
@@ -120,6 +149,18 @@ export const getProductMetadataFromSC = async (contract_address: string, token_i
     return state.metadata[token_id - 1];
   }
   return true;
+}
+
+export const getUserTokenIdFromId = async (user_id: any) => {
+  console.log('Get User Token Id with id');
+  let contractAddress: BlockchainAddress = BlockchainAddress.fromString(USER_SC_ADDRESS);
+  const contract = await client.getContractState(contractAddress);
+  if (contract != null) {
+    const stateBuffer = Buffer.from(contract.serializedContract.state.data, "base64");
+    const state = deserializeUserState(stateBuffer);
+    console.log(state.userIdtoTokenId.get(user_id.toString())?.toNumber());
+    return state.userIdtoTokenId.get(user_id.toString())?.toNumber();
+  }
 }
 
 // (async () => {

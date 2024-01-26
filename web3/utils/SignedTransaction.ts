@@ -6,7 +6,7 @@ import BN from "bn.js";
 
 import { BigEndianByteOutput } from "@secata-public/bitmanipulation-ts";
 
-import {BlockchainAddress} from "@partisiablockchain/abi-client-ts";
+import {BlockchainAddress} from "@partisiablockchain/abi-client";
 import { CryptoUtils } from "./CryptoUtil";
 
 

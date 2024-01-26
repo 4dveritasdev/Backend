@@ -1,9 +1,12 @@
 const QRcode = require('../models/qrcodeModel');
+const Product = require('../models/productModel');
 const base = require('./baseController');
 const APIFeatures = require('../utils/apiFeatures');
 const { encrypt, decrypt } = require('../utils/helper');
-const Product = require('../models/productModel');
 const { getProductMetadataFromSC } = require('../web3/index');
+const qrcode = require('qrcode');
+
+const divcount = 20000;
 
 exports.getAllQRcodes = base.getAll(QRcode);
 exports.getQRcode = base.getOne(QRcode);
@@ -15,14 +18,22 @@ exports.addQRcode = base.createOne(QRcode);
 
 exports.getQRcodesWithProductId = async(req: any, res: any, next: any) => {
     try {
-        const doc = await QRcode.find({ product_id: req.body.product_id }).skip(req.body.offset).limit(req.body.amount);
+        // const doc = await QRcode.find({ product_id: req.body.product_id }).skip(req.body.offset).limit(req.body.amount);
+        const product = await Product.findById(req.body.product_id);
+
+        let data = [];
+        for (let i = 0; i < (product.total_minted_amount > 100 ? 100 : product.total_minted_amount); i ++) {
+            const stringdata = JSON.stringify({
+                product_id: product._id,
+                token_id: i
+            });
+            const encryptData = encrypt(stringdata);
+            data.push(encryptData);
+        }
         
         res.status(200).json({
             status: 'success',
-            results: doc.length,
-            data: {
-                data: doc
-            }
+            data
         });
         
     } catch (error) {
@@ -38,14 +49,15 @@ exports.decrypt = async (req: any, res: any, next: any) => {
         console.log(data);
         const product = await Product.findById(data.product_id);
         console.log(product);
-        const tokenMetadata = await getProductMetadataFromSC(product.contract_address[Math.floor(data.token_id / 30000)], data.token_id % 30000);
+        const tokenMetadata = await getProductMetadataFromSC(product.contract_address[Math.floor(data.token_id / divcount)], data.token_id % divcount);
 
-        const qrcode  = await QRcode.find({product_id: data.product_id});
+        const qrcodeImage = await qrcode.toDataURL(req.body.encryptData);
+
         const resData = {
             token_id: data.token_id,
             ...product._doc,
             ...tokenMetadata,
-            qrcode_img: qrcode[data.token_id - 1].image
+            qrcode_img: qrcodeImage
         };
         
         res.status(200).json({

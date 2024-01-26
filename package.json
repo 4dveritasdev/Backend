@@ -10,7 +10,7 @@
     "author": "Moath Shreim",
     "license": "ISC",
     "dependencies": {
-        "@partisiablockchain/abi-client-ts": "^3.21.0",
+        "@partisiablockchain/abi-client": "^3.30.0",
         "@secata-public/bitmanipulation-ts": "3.0.5",
         "@types/bn.js": "^5.1.0",
         "@types/elliptic": "^6.4.14",

@@ -1,4 +1,4 @@
-import {BlockchainAddress} from "@partisiablockchain/abi-client-ts";
+import {BlockchainAddress} from "@partisiablockchain/abi-client";
 import { getRequest, putRequest } from "./Api";
 import { SignedTransaction } from "./SignedTransaction";
 

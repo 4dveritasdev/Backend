@@ -2,6 +2,9 @@ const Company = require('../models/companyModel');
 const base = require('./baseController');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
+const { initClient, batchMint, getNonce, mintUser, getUserTokenIdFromId } = require('../web3/index');
+const { CryptoUtils } = require('../web3/utils/CryptoUtil');
+const { encrypt, decrypt } = require('../utils/helper');
 
 exports.getAllCompanys = base.getAll(Company);
 exports.getCompany = base.getOne(Company);
@@ -12,16 +15,26 @@ exports.deleteCompany = base.deleteOne(Company);
 exports.addCompany = async(req: any, res: any, next: any) => {
     try {
         const company = await Company.findOne({ name: req.body.name });
-        console.log(company)
         if(company) {
             return next(new AppError(400, 'fail', 'Already exists the company'), req, res, next);
         }
-        const doc = await Company.create(req.body);
+
+        const newKeyPair = CryptoUtils.generateKeyPair();
+        const newAddress = CryptoUtils.keyPairToAccountAddress(newKeyPair);
+        console.log(newAddress, newKeyPair.getPrivate('hex'));
+
+        const doc = await Company.create({
+            wallet: newAddress,
+            privateKey: newKeyPair.getPrivate('hex'),
+            ...req.body
+        });
+        await mintUser(doc._id.toString(), newAddress);
+        console.log(doc);
 
         res.status(200).json({
             status: 'success',
             data: {
-                doc
+                // doc
             }
         });
 
@@ -47,14 +60,28 @@ exports.addCompany = async(req: any, res: any, next: any) => {
 
 exports.login = async(req: any, res: any, next: any) => {
     try {
-        const doc = await Company.findOne({ name: req.body.name, password: req.body.password });
+        const user = await Company.findOne({ name: req.body.name, password: req.body.password });
 
-        if(!doc) {
+        if(!user) {
             res.status(404).json({
                 status: 'failed',
                 message: 'company does not exist'
             });    
         }
+
+        const token_id = await getUserTokenIdFromId(user._id);
+        const stringdata = JSON.stringify({
+            product_id: user._id,
+            token_id
+        });
+        console.log(stringdata);
+        const encryptData = encrypt(stringdata);
+
+        user.privateKey = undefined;
+        let doc = {
+            qrcode: encryptData,
+            ...user._doc
+        };
 
         res.status(200).json({
             status: 'success',

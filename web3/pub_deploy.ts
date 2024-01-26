@@ -10,7 +10,7 @@ import {
   ScValueStruct,
   StateReader, TypeIndex,
   BlockchainAddress
-} from "@partisiablockchain/abi-client-ts";
+} from "@partisiablockchain/abi-client";
 import {BigEndianByteOutput} from "@secata-public/bitmanipulation-ts";
 
 const fileAbi: FileAbi = new AbiParser(Buffer.from(
