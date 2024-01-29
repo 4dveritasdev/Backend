@@ -5,6 +5,7 @@ const AppError = require('../utils/appError');
 const { initClient, batchMint, getNonce, mintUser, getUserTokenIdFromId } = require('../web3/index');
 const { CryptoUtils } = require('../web3/utils/CryptoUtil');
 const { encrypt, decrypt } = require('../utils/helper');
+const qrcode = require('qrcode');
 
 exports.getAllCompanys = base.getAll(Company);
 exports.getCompany = base.getOne(Company);
@@ -77,9 +78,11 @@ exports.login = async(req: any, res: any, next: any) => {
         console.log(stringdata);
         const encryptData = encrypt(stringdata);
 
+        const qrcodeImage = await qrcode.toDataURL(encryptData);
+
         user.privateKey = undefined;
         let doc = {
-            qrcode: encryptData,
+            qrcode: qrcodeImage,
             ...user._doc
         };
 

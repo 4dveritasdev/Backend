@@ -9,7 +9,16 @@ const companySchema = new mongoose.Schema({
         type: String,
         require: true
     },
+    email: {
+        type: String
+    },
+    title: {
+        type: String
+    },
     logo: {
+        type: String
+    },
+    background: {
         type: String
     },
     detail: {
