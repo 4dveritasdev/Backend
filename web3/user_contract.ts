@@ -48,9 +48,9 @@ function buildRpcTransfer(value: Transfer, builder: AbstractBuilder) {
 }
 
 interface MetaData {
-  status: string,
-  mpg_time: string,
-  exp_time: string
+  product_id: string | null | undefined;
+  contract_address: String | null;
+  id: Number;
 }
 
 export interface TokenState {
@@ -58,15 +58,9 @@ export interface TokenState {
   symbol: string;
   owner: BlockchainAddress;
   totalSupply: BN;
-  // balances: Map<BlockchainAddress, BN>;
-  // allowed: Map<BlockchainAddress, Map<BlockchainAddress, BN>>;
-  // metadata: Array<MetaData>;
+  userProducts: Map<Number, Array<MetaData>>
   userIdtoTokenId: Map<String, BN>;
 }
-
-// export function newTokenState(name: string, decimals: number, symbol: string, owner: BlockchainAddress, totalSupply: BN, balances: Map<BlockchainAddress, BN>, allowed: Map<BlockchainAddress, Map<BlockchainAddress, BN>>): TokenState {
-//   return {name, decimals, symbol, owner, totalSupply, balances, allowed}
-// }
 
 function fromScValueTokenState(structValue: ScValueStruct): TokenState {
   return {
@@ -74,10 +68,8 @@ function fromScValueTokenState(structValue: ScValueStruct): TokenState {
     symbol: structValue.getFieldValue("symbol")!.stringValue(),
     owner: BlockchainAddress.fromBuffer(structValue.getFieldValue("contract_owner")!.addressValue().value),
     totalSupply: structValue.getFieldValue("total_count")!.asBN(),
-    // balances: new Map([...structValue.getFieldValue("balances")!.mapValue().map].map(([k1, v2]) => [BlockchainAddress.fromBuffer(k1.addressValue().value), v2.asBN()])),
-    // allowed: new Map([...structValue.getFieldValue("allowed")!.mapValue().map].map(([k3, v4]) => [BlockchainAddress.fromBuffer(k3.addressValue().value), new Map([...v4.mapValue().map].map(([k5, v6]) => [BlockchainAddress.fromBuffer(k5.addressValue().value), v6.asBN()]))])),
-    // metadata: [...structValue.getFieldValue("token_uri_details")!.mapValue().map].map(([k1, v2]) => ({status: v2.structValue().getFieldValue('status')!.stringValue(), mpg_time: v2.structValue().getFieldValue('mpg_time')!.stringValue(), exp_time: v2.structValue().getFieldValue('exp_time')!.stringValue()})),
-    userIdtoTokenId: new Map([...structValue.getFieldValue("user_id_to_token_id")!.mapValue().map].map(([k1, v2]) => [k1.stringValue(), v2.asBN()])),
+    userProducts: new Map([...structValue.getFieldValue("user_product_list")!.mapValue().map].map(([k1, v1]) => [k1.asBN().toNumber(), v1.vecValue().values().map((v12) => ({product_id: v12.structValue().getFieldValue("product_id")?.stringValue(), contract_address: BlockchainAddress.fromBuffer(v12.structValue().getFieldValue('contract_address')!.addressValue().value).asString(), id: v12.structValue().getFieldValue('id')?.asBN().toNumber() || 0}))])),
+    userIdtoTokenId: new Map([...structValue.getFieldValue("user_id_to_token_id")!.mapValue().map].map(([k2, v2]) => [k2.stringValue(), v2.asBN()])),
   };
 }
 

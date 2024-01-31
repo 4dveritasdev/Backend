@@ -29,11 +29,11 @@ const client = new Client(TESTNET_URL);
 
 let SENDER_PRIVATE_KEY: string = "4931e8190e5ef42c225c86845abe7934dd704ca9d133d5dc7128c8e04db00ca6";
 let SENDER_PUBLICK_KEY: string = "00eacdb88750935eb88610a9a69cb22334965b8225";
-let USER_SC_ADDRESS: string = "02948ad3262c9233427eb1c8f54f176350580b1c26";
+let USER_SC_ADDRESS: string = "025dba939ab1886d91d5f77cf026879e46ca5a7149";
 //4931e8190e5ef42c225c86845abe7934dd704ca9d133d5dc7128c8e04db00ca6
 //2e4fd54916e7e953cffd11bf13cc952e07863f957f8264be4f9ea1a1d9d5904c
 
-export const initClient = async () => {
+export const initClient = async (product_id: any) => {
   try {
     console.log("initClient");
     
@@ -43,7 +43,7 @@ export const initClient = async () => {
 
     const transactionSender = TransactionSender.create(client, SENDER_PRIVATE_KEY);
 
-    const initPayload = initialize("name", "symbol", USER_SC_ADDRESS, "https://example.com");
+    const initPayload = initialize("name", "symbol", product_id.toString(), USER_SC_ADDRESS, "https://example.com");
 
     const wasmBytes: Buffer = fs.readFileSync("./web3/nft_contract.wasm");
     const abiBytes: Buffer = fs.readFileSync("./web3/nft_contract.abi");
@@ -97,7 +97,7 @@ export const mintUser = async (id: string, wallet: string) => {
   }
 };
 
-export const batchMint = async (contract_address: string, count: number) => {
+export const batchMint = async (to: string, contract_address: string, count: number) => {
   try {
     console.log("batch mint", contract_address);
     await delay(2000);
@@ -111,7 +111,7 @@ export const batchMint = async (contract_address: string, count: number) => {
     console.log(startDate, endDate);
 
     const transactionSender = TransactionSender.create(client, SENDER_PRIVATE_KEY);
-    const rpc = batch_mint(SENDER_PUBLICK_KEY, new BN(count), 'minted', startDate, endDate);
+    const rpc = batch_mint(to, new BN(count), 'minted', startDate, endDate);
 
     // Send the transaction
     const transactionPointer = await transactionSender.sendAndSign(
@@ -158,8 +158,11 @@ export const getUserTokenIdFromId = async (user_id: any) => {
   if (contract != null) {
     const stateBuffer = Buffer.from(contract.serializedContract.state.data, "base64");
     const state = deserializeUserState(stateBuffer);
-    console.log(state.userIdtoTokenId.get(user_id.toString())?.toNumber());
-    return state.userIdtoTokenId.get(user_id.toString())?.toNumber();
+    const userid = state.userIdtoTokenId.get(user_id.toString())?.toNumber() || 0;
+    // console.log(state.userIdtoTokenId.get(user_id.toString())?.toNumber());
+    // console.log(state.userProducts.get(userid));
+    // console.log(state.userProducts.get(state.userIdtoTokenId.get(user_id.toString())!));
+    return {token_id: state.userIdtoTokenId.get(user_id.toString())?.toNumber(), products: state.userProducts.get(userid)};
   }
 }
 

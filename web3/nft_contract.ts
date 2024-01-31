@@ -56,6 +56,7 @@ interface MetaData {
 export interface TokenState {
   name: string;
   symbol: string;
+  product_id: string;
   owner: BlockchainAddress;
   totalSupply: BN;
   // balances: Map<BlockchainAddress, BN>;
@@ -71,6 +72,7 @@ function fromScValueTokenState(structValue: ScValueStruct): TokenState {
   return {
     name: structValue.getFieldValue("name")!.stringValue(),
     symbol: structValue.getFieldValue("symbol")!.stringValue(),
+    product_id: structValue.getFieldValue("product_id")!.stringValue(),
     owner: BlockchainAddress.fromBuffer(structValue.getFieldValue("contract_owner")!.addressValue().value),
     totalSupply: structValue.getFieldValue("total_count")!.asBN(),
     // balances: new Map([...structValue.getFieldValue("balances")!.mapValue().map].map(([k1, v2]) => [BlockchainAddress.fromBuffer(k1.addressValue().value), v2.asBN()])),
@@ -98,10 +100,11 @@ function fromScValueSecretVarId(structValue: ScValueStruct): SecretVarId {
   };
 }
 
-export function initialize(name: string, symbol: string, user_contract: string, url_template: string): Buffer {
+export function initialize(name: string, symbol: string, product_id: string, user_contract: string, url_template: string): Buffer {
   const fnBuilder = new FnRpcBuilder("initialize", fileAbi.contract);
   fnBuilder.addString(name);
   fnBuilder.addString(symbol);
+  fnBuilder.addString(product_id);
   fnBuilder.addAddress(user_contract);
   fnBuilder.addString(url_template);
   return fnBuilder.getBytes();

@@ -70,12 +70,12 @@ exports.login = async(req: any, res: any, next: any) => {
             });    
         }
 
-        const token_id = await getUserTokenIdFromId(user._id);
+        const {token_id, products} = await getUserTokenIdFromId(user._id);
+        console.log(token_id, products);
         const stringdata = JSON.stringify({
-            product_id: user._id,
+            user_id: user._id,
             token_id
         });
-        console.log(stringdata);
         const encryptData = encrypt(stringdata);
 
         const qrcodeImage = await qrcode.toDataURL(encryptData);
@@ -83,6 +83,7 @@ exports.login = async(req: any, res: any, next: any) => {
         user.privateKey = undefined;
         let doc = {
             qrcode: qrcodeImage,
+            products: products,
             ...user._doc
         };
 
