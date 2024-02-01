@@ -26,8 +26,29 @@ mongoose.connection.on('error', (error: any) => {
 });
 // Start the server
 const port = process.env.PORT || 8080;
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Application is running on port ${port}`);
+});
+
+const { Server } = require('socket.io');
+
+export const socketIo = new Server(server, {
+    cors : {
+        origin : '*'
+    }
+})
+
+socketIo.on('connection', (socket: any) => {
+    console.log('A user connected');
+  
+    socket.on('disconnect', () => {
+      console.log('User disconnected');
+    });
+  
+    socket.on('message', (data: any) => {
+      console.log('Received message:', data);
+      socketIo.emit('message', data); // Broadcast message to all connected clients
+    });
 });
 
 process.on('unhandledRejection', (err: any) => {
