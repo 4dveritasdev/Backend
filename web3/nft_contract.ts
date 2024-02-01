@@ -123,7 +123,7 @@ export function batch_mint(to:string, count:BN, status:string, mpg_time:string, 
 }
 
 export function transfer_from(from: string, to:string, id:BN): Buffer {
-  const fnBuilder = new FnRpcBuilder("batch_mint", fileAbi.contract);
+  const fnBuilder = new FnRpcBuilder("transfer_from", fileAbi.contract);
   const encodedFromAddress = Buffer.from(from, "hex");
   const encodedToAddress = Buffer.from(to, "hex");
   fnBuilder.addAddress(encodedFromAddress);

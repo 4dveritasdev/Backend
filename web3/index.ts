@@ -147,7 +147,7 @@ export const transferProduct = async (contract_address: string, from: string, to
           address: contractAddress,
           rpc: rpc,
         },
-        new BN(300000)
+        new BN(100000)
     );
 
     const txIdentifier = transactionPointer.transactionPointer.identifier.toString("hex");
