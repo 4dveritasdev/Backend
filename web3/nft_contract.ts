@@ -122,6 +122,17 @@ export function batch_mint(to:string, count:BN, status:string, mpg_time:string, 
   return fnBuilder.getBytes();
 }
 
+export function transfer_from(from: string, to:string, id:BN): Buffer {
+  const fnBuilder = new FnRpcBuilder("batch_mint", fileAbi.contract);
+  const encodedFromAddress = Buffer.from(from, "hex");
+  const encodedToAddress = Buffer.from(to, "hex");
+  fnBuilder.addAddress(encodedFromAddress);
+  fnBuilder.addAddress(encodedToAddress);
+  fnBuilder.addU128(id);
+
+  return fnBuilder.getBytes();
+}
+
 // export function transfer(to: BlockchainAddress, amount: BN): Buffer {
 //   const fnBuilder = new FnRpcBuilder("transfer", fileAbi.contract);
 //   fnBuilder.addAddress(to.asBuffer());

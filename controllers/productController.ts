@@ -4,7 +4,7 @@ const QRcode = require('../models/qrcodeModel');
 const base = require('./baseController');
 const APIFeatures = require('../utils/apiFeatures');
 // const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
-const { initClient, batchMint, getNonce } = require('../web3/index');
+const { initClient, batchMint, getNonce, transferProduct } = require('../web3/index');
 const { encrypt, decrypt } = require('../utils/helper');
 
 const divcount = 20000;
@@ -119,3 +119,16 @@ exports.mint = async(req: any, res: any, next: any) => {
         next(error);
     }
 };
+
+exports.transfer = async(req: any, res: any, next: any) => {
+    try {
+        const {product_address, from, to, token_id} = req.body;
+        const transferred = await transferProduct(product_address, from, to, token_id);
+
+        res.status(200).json({
+            status: transferred,
+        });
+    } catch (error) {
+        next(error);
+    }
+}

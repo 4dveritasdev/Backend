@@ -1,6 +1,6 @@
 import {BlockchainAddress} from "@partisiablockchain/abi-client";
 import BN from "bn.js";
-import {initialize, batch_mint, deserializeTokenState} from "./nft_contract";
+import {initialize, batch_mint, deserializeTokenState, transfer_from} from "./nft_contract";
 import {deployContractWithBinderId} from "./pub_deploy"
 import {Client} from "./utils/Client";
 import {TransactionSender} from "./utils/TransactionSender";
@@ -128,6 +128,35 @@ export const batchMint = async (to: string, contract_address: string, count: num
 
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const transferProduct = async (contract_address: string, from: string, to: string, token_id: number) => {
+  try {
+    console.log("transfer product", contract_address, from, to, token_id);
+    // This contract address is pub-deploy
+    let contractAddress: BlockchainAddress = BlockchainAddress.fromString(
+        contract_address);
+
+    const transactionSender = TransactionSender.create(client, SENDER_PRIVATE_KEY);
+    const rpc = transfer_from(from, to, new BN(token_id));
+
+    // Send the transaction
+    const transactionPointer = await transactionSender.sendAndSign(
+        {
+          address: contractAddress,
+          rpc: rpc,
+        },
+        new BN(300000)
+    );
+
+    const txIdentifier = transactionPointer.transactionPointer.identifier.toString("hex");
+    // eslint-disable-next-line no-console
+    console.log("Sent input in transaction: " + txIdentifier);
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
   }
 };
 

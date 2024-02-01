@@ -7,6 +7,7 @@ const ProductController = require('../controllers/productController');
 
 router.get('/', ProductController.getAllProducts);
 router.post('/filter', ProductController.getAllProducts);
+router.post('/transfer', ProductController.transfer);
 router.get('/:id', ProductController.getProduct);
 router.post('/', ProductController.addProduct);
 router.post('/:id/mint', ProductController.mint);
