@@ -1,5 +1,6 @@
 const QRcode = require('../models/qrcodeModel');
 const Product = require('../models/productModel');
+const Company = require('../models/companyModel');
 const base = require('./baseController');
 const APIFeatures = require('../utils/apiFeatures');
 const { encrypt, decrypt } = require('../utils/helper');
@@ -47,23 +48,41 @@ exports.decrypt = async (req: any, res: any, next: any) => {
         console.log(req.body.encryptData);
         const data = JSON.parse(decrypt(req.body.encryptData));
         console.log(data);
-        const product = await Product.findById(data.product_id);
-        console.log(product);
-        const tokenMetadata = await getProductMetadataFromSC(product.contract_address[Math.floor(data.token_id / divcount)], data.token_id % divcount);
 
-        const qrcodeImage = await qrcode.toDataURL(req.body.encryptData);
+        if(data.product_id) {
+            const product = await Product.findById(data.product_id);
+            console.log(product);
+            const tokenMetadata = await getProductMetadataFromSC(product.contract_address[Math.floor(data.token_id / divcount)], data.token_id % divcount);
 
-        const resData = {
-            token_id: data.token_id,
-            ...product._doc,
-            ...tokenMetadata,
-            qrcode_img: qrcodeImage
-        };
-        
-        res.status(200).json({
-            status: 'success',
-            data: resData
-        });
+            const qrcodeImage = await qrcode.toDataURL(req.body.encryptData);
+
+            const resData = {
+                token_id: data.token_id,
+                ...product._doc,
+                ...tokenMetadata,
+                qrcode_img: qrcodeImage
+            };
+            
+            res.status(200).json({
+                status: 'success',
+                data: resData,
+                type: 'Product'
+            });
+        } else if (data.user_id) {
+            const company = await Company.findById(data.user_id);
+            console.log(company);
+            
+            const resData = {
+                token_id: data.token_id,
+                ...company._doc,
+            };
+            
+            res.status(200).json({
+                status: 'success',
+                data: resData,
+                type: 'User'
+            });
+        }
     } catch (error) {
         next(error);
     }
