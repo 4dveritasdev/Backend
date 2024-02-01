@@ -70,11 +70,15 @@ exports.decrypt = async (req: any, res: any, next: any) => {
             });
         } else if (data.user_id) {
             const company = await Company.findById(data.user_id);
+            company.privateKey = undefined;
+            company.password = undefined;
             console.log(company);
+            const qrcodeImage = await qrcode.toDataURL(req.body.encryptData);
             
             const resData = {
                 token_id: data.token_id,
                 ...company._doc,
+                qrcode_img: qrcodeImage
             };
             
             res.status(200).json({
