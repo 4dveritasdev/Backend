@@ -15,21 +15,6 @@ const globalErrHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
 
 const app = express();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-
-io.on('connection', (socket: any) => {
-    console.log('A user connected');
-  
-    socket.on('disconnect', () => {
-      console.log('User disconnected');
-    });
-  
-    socket.on('message', (data: any) => {
-      console.log('Received message:', data);
-      io.emit('message', data); // Broadcast message to all connected clients
-    });
-});
 
 // Allow Cross-Origin requests
 // app.use(cors({

@@ -32,11 +32,14 @@ const server = app.listen(port, () => {
 
 const { Server } = require('socket.io');
 
-export const socketIo = new Server(server, {
+const socketIo = new Server(server, {
     cors : {
         origin : '*'
     }
 })
+
+// @ts-ignore
+global.io = socketIo;
 
 socketIo.on('connection', (socket: any) => {
     console.log('A user connected');

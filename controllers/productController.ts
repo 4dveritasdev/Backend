@@ -6,7 +6,6 @@ const APIFeatures = require('../utils/apiFeatures');
 // const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 const { initClient, batchMint, getNonce, transferProduct } = require('../web3/index');
 const { encrypt, decrypt } = require('../utils/helper');
-const { socketIo } = require('../server');
 
 const divcount = 20000;
 const mintcount = 15000;
@@ -125,8 +124,9 @@ exports.transfer = async(req: any, res: any, next: any) => {
     try {
         const {product_address, from, to, token_id} = req.body;
         const transferred = await transferProduct(product_address, from, to, token_id);
-
-        socketIo.emit('Refresh user data');
+        
+        // @ts-ignore
+        global.io.emit('Refresh user data');
 
         res.status(200).json({
             status: transferred,
