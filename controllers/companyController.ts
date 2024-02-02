@@ -66,7 +66,7 @@ exports.login = async(req: any, res: any, next: any) => {
         if(!user) {
             res.status(404).json({
                 status: 'failed',
-                message: 'company does not exist'
+                message: 'User name or password is wrong!'
             });    
         }
 
