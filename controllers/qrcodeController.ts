@@ -23,10 +23,17 @@ exports.getQRcodesWithProductId = async(req: any, res: any, next: any) => {
         const product = await Product.findById(req.body.product_id);
 
         let data = [];
-        for (let i = 1; i <= (product.total_minted_amount > 100 ? 100 : product.total_minted_amount); i ++) {
+        let count = 100;
+        if (req.body.page == Math.ceil(product.total_minted_amount / 100) && product.total_minted_amount % 100) {
+            count = product.total_minted_amount % 100;
+        } 
+        if (req.body.page > Math.ceil(product.total_minted_amount / 100)) {
+            count = 0;
+        }
+        for (let i = 1; i <= count; i ++) {
             const stringdata = JSON.stringify({
                 product_id: product._id,
-                token_id: i
+                token_id: (req.body.page - 1) * 100 + i
             });
             const encryptData = encrypt(stringdata);
             data.push(encryptData);

@@ -101,11 +101,11 @@ exports.mint = async(req: any, res: any, next: any) => {
             console.log('step', p, mintAmount % divcount);
             contract_address = await initClient(product._id);
             let end = new Date();
-            console.log(end.getTime() - start.getTime())
+            console.log(end.getTime() - start.getTime());
             product.contract_address.push(contract_address);
             await batchMint(product.company_id.wallet, contract_address, mintAmount % divcount);
             end = new Date();
-            console.log(end.getTime() - start.getTime())
+            console.log(end.getTime() - start.getTime());
         }
 
         product.total_minted_amount += req.body.amount;
