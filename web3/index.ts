@@ -119,7 +119,7 @@ export const batchMint = async (to: string, contract_address: string, count: num
           address: contractAddress,
           rpc: rpc,
         },
-        new BN(300000)
+        new BN(1000000)
     );
 
     const txIdentifier = transactionPointer.transactionPointer.identifier.toString("hex");
