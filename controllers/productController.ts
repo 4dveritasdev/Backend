@@ -80,9 +80,18 @@ exports.mint = async(req: any, res: any, next: any) => {
                 console.log('mint to prev contract', (divcount - product.total_minted_amount % divcount));
                 await batchMint(product.company_id.wallet, product.contract_address[product.contract_address.length - 1], divcount - product.total_minted_amount % divcount);
                 mintAmount -= (divcount - product.total_minted_amount % divcount);
+                product.total_minted_amount += (divcount - product.total_minted_amount % divcount);
+                product.save();
+                // @ts-ignore
+                global.io.emit('Refresh product data');
+
             } else {
                 console.log('mint to prev contract', mintAmount);
                 await batchMint(product.company_id.wallet, product.contract_address[product.contract_address.length - 1], mintAmount);
+                product.total_minted_amount += mintAmount;
+                product.save();
+                // @ts-ignore
+                global.io.emit('Refresh product data');
                 mintAmount = 0;
             }
         }
@@ -96,6 +105,11 @@ exports.mint = async(req: any, res: any, next: any) => {
             await batchMint(product.company_id.wallet, contract_address, divcount);
             end = new Date();
             console.log(end.getTime() - start.getTime())
+            product.total_minted_amount += divcount;
+            product.save();
+
+            // @ts-ignore
+            global.io.emit('Refresh product data');
         }
         if (mintAmount % divcount > 0) {
             console.log('step', p, mintAmount % divcount);
@@ -106,10 +120,15 @@ exports.mint = async(req: any, res: any, next: any) => {
             await batchMint(product.company_id.wallet, contract_address, mintAmount % divcount);
             end = new Date();
             console.log(end.getTime() - start.getTime());
+            product.total_minted_amount += mintAmount % divcount;
+            product.save();
+
+            // @ts-ignore
+            global.io.emit('Refresh product data');
         }
 
-        product.total_minted_amount += req.body.amount;
-        product.save();
+        // product.total_minted_amount += req.body.amount;
+        // product.save();
 
         res.status(200).json({
             status: 'success',
