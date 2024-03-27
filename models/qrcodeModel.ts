@@ -5,8 +5,13 @@ const qrcodeSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product'
     },
-    image: {
-        type: String
+    company_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company'
+    },
+    qrcode_id: {
+        type: Number,
+        require: true
     }
 });
 

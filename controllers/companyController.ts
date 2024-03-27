@@ -6,6 +6,7 @@ const { initClient, batchMint, getNonce, mintUser, getUserTokenIdFromId } = requ
 const { CryptoUtils } = require('../web3/utils/CryptoUtil');
 const { encrypt, decrypt } = require('../utils/helper');
 const qrcode = require('qrcode');
+const QRcode = require('../models/qrcodeModel');
 
 exports.getAllCompanys = base.getAll(Company);
 exports.getCompany = base.getOne(Company);
@@ -70,8 +71,8 @@ exports.login = async(req: any, res: any, next: any) => {
             });    
         }
 
-        const {token_id, products} = await getUserTokenIdFromId(user._id);
-        console.log(token_id, products);
+        const {token_id} = await getUserTokenIdFromId(user._id);
+        console.log(token_id);
         const stringdata = JSON.stringify({
             user_id: user._id,
             token_id
@@ -80,10 +81,12 @@ exports.login = async(req: any, res: any, next: any) => {
 
         const qrcodeImage = await qrcode.toDataURL(encryptData);
 
+        const company_products = await QRcode.find({ company_id: user._id });
+
         user.privateKey = undefined;
         let doc = {
             qrcode: qrcodeImage,
-            products: products,
+            products: company_products,
             ...user._doc
         };
 

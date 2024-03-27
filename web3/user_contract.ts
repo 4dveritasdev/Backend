@@ -58,7 +58,7 @@ export interface TokenState {
   symbol: string;
   owner: BlockchainAddress;
   totalSupply: BN;
-  userProducts: Map<Number, Array<MetaData>>
+  // userProducts: Map<Number, Array<MetaData>>
   userIdtoTokenId: Map<String, BN>;
 }
 
@@ -68,7 +68,7 @@ function fromScValueTokenState(structValue: ScValueStruct): TokenState {
     symbol: structValue.getFieldValue("symbol")!.stringValue(),
     owner: BlockchainAddress.fromBuffer(structValue.getFieldValue("contract_owner")!.addressValue().value),
     totalSupply: structValue.getFieldValue("total_count")!.asBN(),
-    userProducts: new Map([...structValue.getFieldValue("user_product_list")!.mapValue().map].map(([k1, v1]) => [k1.asBN().toNumber(), v1.vecValue().values().map((v12) => ({product_id: v12.structValue().getFieldValue("product_id")?.stringValue(), contract_address: BlockchainAddress.fromBuffer(v12.structValue().getFieldValue('contract_address')!.addressValue().value).asString(), id: v12.structValue().getFieldValue('id')?.asBN().toNumber() || 0}))])),
+    // userProducts: new Map([...structValue.getFieldValue("user_product_list")!.mapValue().map].map(([k1, v1]) => [k1.asBN().toNumber(), v1.vecValue().values().map((v12) => ({product_id: v12.structValue().getFieldValue("product_id")?.stringValue(), contract_address: BlockchainAddress.fromBuffer(v12.structValue().getFieldValue('contract_address')!.addressValue().value).asString(), id: v12.structValue().getFieldValue('id')?.asBN().toNumber() || 0}))])),
     userIdtoTokenId: new Map([...structValue.getFieldValue("user_id_to_token_id")!.mapValue().map].map(([k2, v2]) => [k2.stringValue(), v2.asBN()])),
   };
 }

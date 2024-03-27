@@ -29,7 +29,7 @@ const client = new Client(TESTNET_URL);
 
 let SENDER_PRIVATE_KEY: string = "4931e8190e5ef42c225c86845abe7934dd704ca9d133d5dc7128c8e04db00ca6";
 let SENDER_PUBLICK_KEY: string = "00eacdb88750935eb88610a9a69cb22334965b8225";
-let USER_SC_ADDRESS: string = "02d6398fa72b1109d2f04b9b7d78cf05482b806333";
+let USER_SC_ADDRESS: string = "026ed7fae1b3ec279b0e662f31634e3a9a549b7cb7";
 //4931e8190e5ef42c225c86845abe7934dd704ca9d133d5dc7128c8e04db00ca6
 //2e4fd54916e7e953cffd11bf13cc952e07863f957f8264be4f9ea1a1d9d5904c
 
@@ -191,7 +191,8 @@ export const getUserTokenIdFromId = async (user_id: any) => {
     // console.log(state.userIdtoTokenId.get(user_id.toString())?.toNumber());
     // console.log(state.userProducts.get(userid));
     // console.log(state.userProducts.get(state.userIdtoTokenId.get(user_id.toString())!));
-    return {token_id: state.userIdtoTokenId.get(user_id.toString())?.toNumber(), products: state.userProducts.get(userid)};
+    // return {token_id: state.userIdtoTokenId.get(user_id.toString())?.toNumber(), products: state.userProducts.get(userid)};
+    return {token_id: state.userIdtoTokenId.get(user_id.toString())?.toNumber()};
   }
 }
 

@@ -75,6 +75,16 @@ exports.mint = async(req: any, res: any, next: any) => {
         let p: any;
         let mintAmount = req.body.amount;
 
+        for (let j = 1; j <= mintAmount; j ++ ) {
+            await QRcode.create({
+                product_id: product._id,
+                company_id: product.company_id._id,
+                qrcode_id: product.total_minted_amount + j
+            })
+        }
+        let end = new Date();
+        console.log(end.getTime() - start.getTime())
+
         if (product.total_minted_amount % divcount > 0) {
             if (mintAmount >= (divcount - product.total_minted_amount % divcount)) {
                 console.log('mint to prev contract', (divcount - product.total_minted_amount % divcount));
@@ -105,6 +115,7 @@ exports.mint = async(req: any, res: any, next: any) => {
             await batchMint(product.company_id.wallet, contract_address, divcount);
             end = new Date();
             console.log(end.getTime() - start.getTime())
+
             product.total_minted_amount += divcount;
             product.save();
 
@@ -127,9 +138,6 @@ exports.mint = async(req: any, res: any, next: any) => {
             global.io.emit('Refresh product data');
         }
 
-        // product.total_minted_amount += req.body.amount;
-        // product.save();
-
         res.status(200).json({
             status: 'success',
             offset: product.total_minted_amount,
@@ -141,8 +149,19 @@ exports.mint = async(req: any, res: any, next: any) => {
 
 exports.transfer = async(req: any, res: any, next: any) => {
     try {
-        const {product_address, from, to, token_id} = req.body;
+        const {product_address, from, to, token_id, product_id, from_id, to_id} = req.body;
         const transferred = await transferProduct(product_address, from, to, token_id);
+
+        const qr = await QRcode.findOne({
+            product_id: product_id,
+            company_id: from_id,
+            qrcode_id: token_id
+        });
+        console.log(qr);
+
+        qr.company_id = to_id;
+
+        qr.save();
         
         // @ts-ignore
         global.io.emit('Refresh user data');
