@@ -173,3 +173,22 @@ exports.transfer = async(req: any, res: any, next: any) => {
         next(error);
     }
 }
+
+exports.printQRCodes = async (req: any, res: any, next: any) => {
+    try {
+        const product = await Product.findById(req.params.id).populate('company_id');
+        if (product.total_minted_amount >= product.printed_amount + req.body.count) {
+            product.printed_amount += req.body.count;
+        } else {
+            product.printed_amount = product.total_minted_amount;
+        }
+        product.save();
+
+        res.status(200).json({
+            status: 'success',
+            data: product
+        });
+    } catch (error) {
+        next(error);
+    }
+}

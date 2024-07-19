@@ -24,21 +24,37 @@ exports.getQRcodesWithProductId = async(req: any, res: any, next: any) => {
 
         let data = [];
         let count = 100;
-        if (req.body.page == Math.ceil(product.total_minted_amount / 100) && product.total_minted_amount % 100) {
-            count = product.total_minted_amount % 100;
-        } 
-        if (req.body.page > Math.ceil(product.total_minted_amount / 100)) {
-            count = 0;
-        }
-        for (let i = 1; i <= count; i ++) {
-            const stringdata = JSON.stringify({
-                product_id: product._id,
-                token_id: (req.body.page - 1) * 100 + i
-            });
-            const encryptData = encrypt(stringdata);
-            data.push(encryptData);
-        }
         
+        if (req.body.page == 0) {
+            
+            for (let i = req.body.from; i <= req.body.to; i ++) {
+                if (i > 0 && i <= product.total_minted_amount) {
+                    const stringdata = JSON.stringify({
+                        product_id: product._id,
+                        token_id: i
+                    });
+                    const encryptData = encrypt(stringdata);
+                    data.push(encryptData);
+                }
+            }
+        } else if (req.body.page > 0) {
+            if (req.body.page == Math.ceil(product.total_minted_amount / 100) && product.total_minted_amount % 100) {
+                count = product.total_minted_amount % 100;
+            } 
+            else if (req.body.page > Math.ceil(product.total_minted_amount / 100)) {
+                count = 0;
+            }
+            
+            for (let i = 1; i <= count; i ++) {
+                const stringdata = JSON.stringify({
+                    product_id: product._id,
+                    token_id: (req.body.page - 1) * 100 + i
+                });
+                const encryptData = encrypt(stringdata);
+                data.push(encryptData);
+            }
+        }
+
         res.status(200).json({
             status: 'success',
             data

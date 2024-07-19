@@ -34,6 +34,10 @@ const productSchema = new mongoose.Schema({
     total_minted_amount: {
         type: Number,
         default: 0
+    },
+    printed_amount: {
+        type: Number,
+        default: 0
     }
 });
 

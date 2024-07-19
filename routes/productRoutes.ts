@@ -12,6 +12,7 @@ router.get('/:id', ProductController.getProduct);
 router.post('/', ProductController.addProduct);
 router.post('/:id/mint', ProductController.mint);
 router.put('/:id', ProductController.updateProduct);
+router.post('/:id/print', ProductController.printQRCodes);
 router.delete('/:id', ProductController.deleteProduct);
 
 
