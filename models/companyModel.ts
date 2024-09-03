@@ -32,6 +32,16 @@ const companySchema = new mongoose.Schema({
     },
     privateKey: {
         type: String
+    },
+    idDocuments: {
+        type: Array
+    },
+    businessDocuments: {
+        type: Array
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
     }
 });
 

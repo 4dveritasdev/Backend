@@ -100,3 +100,25 @@ exports.login = async(req: any, res: any, next: any) => {
         next(error);
     }
 };
+
+exports.verify = async(req: any, res: any, next: any) => {
+    try {
+        const doc = await Company.findByIdAndUpdate(req.params.id, { isVerified: true }, {
+            new: true,
+            runValidators: true
+        });
+
+        if (!doc) {
+            return next(new AppError(404, 'fail', 'No document found with that id'), req, res, next);
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                doc
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};

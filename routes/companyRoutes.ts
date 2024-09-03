@@ -12,6 +12,7 @@ router.get('/:id', CompanyController.getCompany);
 router.post('/', CompanyController.addCompany);
 router.put('/:id', CompanyController.updateCompany);
 router.delete('/:id', CompanyController.deleteCompany);
+router.post('/verify/:id', CompanyController.verify);
 
 
 module.exports = router;
