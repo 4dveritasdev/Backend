@@ -24,8 +24,23 @@ const productSchema = new mongoose.Schema({
     videos: {
         type: Array,
     },
-    warrantyAndGuaranty: {
-        type: Array,
+    warrantyAndGuarantee: {
+        warranty: {
+            period: {
+                type: Number
+            },
+            unit: {
+                type: Number
+            }
+        },
+        guarantee: {
+            period: {
+                type: Number
+            },
+            unit: {
+                type: Number
+            }
+        }
     },
     manualsAndCerts: {
         public: {
