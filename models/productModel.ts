@@ -25,6 +25,12 @@ const productSchema = new mongoose.Schema({
         type: Array,
     },
     warrantyAndGuarantee: {
+        images: {
+            type: Array
+        },
+        videos: {
+            type: Array
+        },
         warranty: {
             period: {
                 type: Number
@@ -43,6 +49,12 @@ const productSchema = new mongoose.Schema({
         }
     },
     manualsAndCerts: {
+        images: {
+            type: Array
+        },
+        videos: {
+            type: Array
+        },
         public: {
             type: String
         },
