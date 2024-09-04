@@ -12,6 +12,7 @@ router.get('/:id', QRcodeController.getQRcode);
 router.post('/', QRcodeController.addQRcode);
 router.put('/:id', QRcodeController.updateQRcode);
 router.delete('/:id', QRcodeController.deleteQRcode);
+router.get('/:id/productinfo', QRcodeController.getProductInfoWithQRCodeID);
 
 
 module.exports = router;

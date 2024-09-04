@@ -114,3 +114,37 @@ exports.decrypt = async (req: any, res: any, next: any) => {
         next(error);
     }
 };
+
+exports.getProductInfoWithQRCodeID = async (req: any, res: any, next: any) => { 
+    try {
+        const data = await QRcode.findById(req.params.id);
+
+        if(data.product_id) {
+            const product = await Product.findById(data.product_id);
+            console.log(product);
+            const tokenMetadata = await getProductMetadataFromSC(product.contract_address[Math.floor(data.qrcode_id / divcount)], data.qrcode_id % divcount);
+
+            const stringdata = JSON.stringify({
+                product_id: product._id,
+                token_id: data.qrcode_id
+            });
+            const encryptData = encrypt(stringdata);
+            const qrcodeImage = await qrcode.toDataURL(encryptData);
+
+            const resData = {
+                token_id: data.qrcode_id,
+                ...product._doc,
+                ...tokenMetadata,
+                qrcode_img: qrcodeImage
+            };
+            
+            res.status(200).json({
+                status: 'success',
+                data: resData,
+                type: 'Product'
+            });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
