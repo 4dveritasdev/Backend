@@ -96,7 +96,7 @@ exports.decrypt = async (req: any, res: any, next: any) => {
             company.privateKey = undefined;
             company.password = undefined;
             console.log(company);
-            const qrcodeImage = await qrcode.toDataURL(req.body.encryptData);
+            const qrcodeImage = await qrcode.toDataURL('https://parisbrewerytours.com?qrcode=' + req.body.encryptData);
             
             const resData = {
                 token_id: data.token_id,
@@ -129,7 +129,7 @@ exports.getProductInfoWithQRCodeID = async (req: any, res: any, next: any) => {
                 token_id: data.qrcode_id
             });
             const encryptData = encrypt(stringdata);
-            const qrcodeImage = await qrcode.toDataURL(encryptData);
+            const qrcodeImage = await qrcode.toDataURL('https://parisbrewerytours.com?qrcode=' + encryptData);
 
             const resData = {
                 token_id: data.qrcode_id,

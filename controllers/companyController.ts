@@ -79,7 +79,7 @@ exports.login = async(req: any, res: any, next: any) => {
         });
         const encryptData = encrypt(stringdata);
 
-        const qrcodeImage = await qrcode.toDataURL(encryptData);
+        const qrcodeImage = await qrcode.toDataURL('https://parisbrewerytours.com?qrcode=' + encryptData);
 
         const company_products = await QRcode.find({ company_id: user._id });
 
