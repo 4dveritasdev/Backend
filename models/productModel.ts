@@ -37,6 +37,12 @@ const productSchema = new mongoose.Schema({
             },
             unit: {
                 type: Number
+            },
+            notime: {
+                type: Boolean
+            },
+            lifetime: {
+                type: Boolean
             }
         },
         guarantee: {
@@ -45,6 +51,12 @@ const productSchema = new mongoose.Schema({
             },
             unit: {
                 type: Number
+            },
+            notime: {
+                type: Boolean
+            },
+            lifetime: {
+                type: Boolean
             }
         }
     },
