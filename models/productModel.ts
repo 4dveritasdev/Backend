@@ -28,6 +28,9 @@ const productSchema = new mongoose.Schema({
         images: {
             type: Array
         },
+        files: {
+            type: Array
+        },
         videos: {
             type: Array
         },
@@ -62,6 +65,9 @@ const productSchema = new mongoose.Schema({
     },
     manualsAndCerts: {
         images: {
+            type: Array
+        },
+        files: {
             type: Array
         },
         videos: {
