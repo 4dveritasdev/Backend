@@ -15,7 +15,7 @@ const delay = (ms : any) => new Promise(resolve => setTimeout(resolve, ms))
 
 exports.getAllProducts = async(req: any, res: any, next: any) => {
     try {
-        const doc = await Product.find(req.body);
+        const doc = await Product.find({...req.body, is_deleted: false});
         
         res.status(200).json({
             status: 'success',
@@ -34,8 +34,66 @@ exports.getAllProducts = async(req: any, res: any, next: any) => {
 exports.getProduct = base.getOne(Product);
 
 // Don't update password on this 
-exports.updateProduct = base.updateOne(Product);
-exports.deleteProduct = base.deleteOne(Product);
+exports.updateProduct = async(req: any, res: any, next: any) => {
+    try {
+        const product = await Product.findOne({ name: req.body.name });
+
+        if (product.total_minted_amount > 0) {
+            return next(new AppError(404, 'fail', "Can't update this product. You already minted."), req, res, next);
+        }
+        if (product.is_deleted) {
+            return next(new AppError(404, 'fail', "Product does not exists."), req, res, next);
+        }
+        
+        const doc = await Product.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
+        });
+
+        if (!doc) {
+            return next(new AppError(404, 'fail', 'No document found with that id'), req, res, next);
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                doc
+            }
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.deleteProduct = async(req: any, res: any, next: any) => {
+    try {
+        const product = await Product.findOne({ _id: req.params._id });
+
+        if (product.total_minted_amount > 0) {
+            return next(new AppError(404, 'fail', "Can't remove this product. You already minted."), req, res, next);
+        }
+        
+        const doc = await Product.findByIdAndUpdate(req.params.id, { is_deleted: true }, {
+            new: true,
+            runValidators: true
+        });
+
+        if (!doc) {
+            return next(new AppError(404, 'fail', 'No document found with that id'), req, res, next);
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                doc
+            }
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
 
 exports.addProduct = async(req: any, res: any, next: any) => {
     try {

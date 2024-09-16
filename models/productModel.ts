@@ -94,6 +94,10 @@ const productSchema = new mongoose.Schema({
     printed_amount: {
         type: Number,
         default: 0
+    },
+    is_deleted: {
+        type: Boolean,
+        default: false
     }
 });
 
