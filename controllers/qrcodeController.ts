@@ -73,7 +73,8 @@ exports.decrypt = async (req: any, res: any, next: any) => {
         console.log(data);
 
         if(data.product_id) {
-            const qrcodeData = await QRcode.findOne({qrcode_id: data.token_id}).populate('company_id');
+            const qrcodeData = await QRcode.findOne({product_id: data.product_id, qrcode_id: data.token_id}).populate('company_id');
+            console.log(qrcodeData);
 
             const product = await Product.findById(data.product_id);
             console.log(product);
