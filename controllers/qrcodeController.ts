@@ -117,7 +117,8 @@ exports.decrypt = async (req: any, res: any, next: any) => {
 
 exports.getProductInfoWithQRCodeID = async (req: any, res: any, next: any) => { 
     try {
-        const data = await QRcode.findById(req.params.id);
+        const data = await QRcode.findById(req.params.id).populate('company_id');
+        console.log(data);
 
         if(data.product_id) {
             const product = await Product.findById(data.product_id);
@@ -133,6 +134,7 @@ exports.getProductInfoWithQRCodeID = async (req: any, res: any, next: any) => {
 
             const resData = {
                 token_id: data.qrcode_id,
+                location: data.company_id.location,
                 ...product._doc,
                 ...tokenMetadata,
                 qrcode_img: qrcodeImage
