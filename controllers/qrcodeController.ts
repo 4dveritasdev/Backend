@@ -73,6 +73,8 @@ exports.decrypt = async (req: any, res: any, next: any) => {
         console.log(data);
 
         if(data.product_id) {
+            const qrcodeData = await QRcode.findOne({qrcode_id: data.token_id}).populate('company_id');
+
             const product = await Product.findById(data.product_id);
             console.log(product);
             const tokenMetadata = await getProductMetadataFromSC(product.contract_address[Math.floor(data.token_id / divcount)], data.token_id % divcount);
@@ -81,6 +83,7 @@ exports.decrypt = async (req: any, res: any, next: any) => {
 
             const resData = {
                 token_id: data.token_id,
+                location: qrcodeData.company_id.location,
                 ...product._doc,
                 ...tokenMetadata,
                 qrcode_img: qrcodeImage
