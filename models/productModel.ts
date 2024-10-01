@@ -24,6 +24,9 @@ const productSchema = new mongoose.Schema({
     videos: {
         type: Array,
     },
+    serials:{
+        type:Array
+    },
     warrantyAndGuarantee: {
         images: {
             type: Array
