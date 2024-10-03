@@ -1,6 +1,8 @@
 const AppError = require('../utils/appError');
 const Product = require('../models/productModel');
 const QRcode = require('../models/qrcodeModel');
+const {v4:uuidv4} = require('uuid')
+const serialModal = require('../models/serialModal')
 const base = require('./baseController');
 const APIFeatures = require('../utils/apiFeatures');
 // const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
@@ -139,6 +141,14 @@ exports.mint = async(req: any, res: any, next: any) => {
                 company_id: product.company_id._id,
                 qrcode_id: product.total_minted_amount + j
             })
+
+            for(const serial of product.serials) {
+                await serialModal.create({
+                    type:serial.type,
+                    serial:uuidv4(),
+                    qrcode_id:product.total_minted_amount + j
+                })
+            }
         }
         let end = new Date();
         console.log(end.getTime() - start.getTime())

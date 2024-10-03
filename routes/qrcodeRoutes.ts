@@ -13,6 +13,7 @@ router.post('/', QRcodeController.addQRcode);
 router.put('/:id', QRcodeController.updateQRcode);
 router.delete('/:id', QRcodeController.deleteQRcode);
 router.get('/:id/productinfo', QRcodeController.getProductInfoWithQRCodeID);
+router.post('/serialdata/productinfo',QRcodeController.getProductInfoWithSerial);
 
 
 module.exports = router;

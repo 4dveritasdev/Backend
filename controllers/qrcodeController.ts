@@ -1,4 +1,5 @@
 const QRcode = require('../models/qrcodeModel');
+const Serials = require('../models/serialModal')
 const Product = require('../models/productModel');
 const Company = require('../models/companyModel');
 const base = require('./baseController');
@@ -77,7 +78,7 @@ exports.decrypt = async (req: any, res: any, next: any) => {
             console.log(qrcodeData);
 
             const product = await Product.findById(data.product_id);
-            console.log(product);
+            const serials = await Serials.find({product_id:data.product_id,qrcode_id:data.token_id});
             const tokenMetadata = await getProductMetadataFromSC(product.contract_address[Math.floor(data.token_id / divcount)], data.token_id % divcount);
 
             const qrcodeImage = await qrcode.toDataURL(req.body.encryptData);
@@ -87,7 +88,8 @@ exports.decrypt = async (req: any, res: any, next: any) => {
                 location: qrcodeData.company_id.location,
                 ...product._doc,
                 ...tokenMetadata,
-                qrcode_img: qrcodeImage
+                qrcode_img: qrcodeImage,
+                serialInfos:serials
             };
             
             res.status(200).json({
@@ -126,7 +128,7 @@ exports.getProductInfoWithQRCodeID = async (req: any, res: any, next: any) => {
 
         if(data.product_id) {
             const product = await Product.findById(data.product_id);
-            console.log(product);
+            const serials = await Serials.find({product_id:data.product_id,qrcode_id:data.qrcode_id});
             const tokenMetadata = await getProductMetadataFromSC(product.contract_address[Math.floor(data.qrcode_id / divcount)], data.qrcode_id % divcount);
 
             const stringdata = JSON.stringify({
@@ -141,6 +143,7 @@ exports.getProductInfoWithQRCodeID = async (req: any, res: any, next: any) => {
                 location: data.company_id.location,
                 ...product._doc,
                 ...tokenMetadata,
+                serialInfos:serials,
                 qrcode_img: qrcodeImage
             };
             
@@ -154,3 +157,42 @@ exports.getProductInfoWithQRCodeID = async (req: any, res: any, next: any) => {
         next(error);
     }
 };
+
+
+exports.getProductInfoWithSerial = async(req:any, res:any, next:any) => {
+    try {
+        const serialData = req.body.data
+        const serialInfo = await Serials.findOne({type:serialData.type,serial:serialData.serial})
+        if(serialInfo) {
+            const product = await Product.findById(serialInfo.product_id);
+            console.log(product);
+            const tokenMetadata = await getProductMetadataFromSC(product.contract_address[Math.floor(serialInfo.qrcode_id / divcount)], serialInfo.qrcode_id % divcount);
+            const serials = await Serials.find({product_id:serialInfo.product_id,qrcode_id:serialInfo.qrcode_id});
+            const stringdata = JSON.stringify({
+                product_id: product._id,
+                token_id: serialInfo.qrcode_id
+            });
+            const encryptData = encrypt(stringdata);
+            const qrcodeImage = await qrcode.toDataURL('https://4dveritaspublic.com?qrcode=' + encryptData);
+
+            const resData = {
+                token_id: serialInfo.qrcode_id,
+                location: serialInfo.company_id.location,
+                ...product._doc,
+                ...tokenMetadata,
+                serialInfos:serials,
+                qrcode_img: qrcodeImage
+            };
+            
+            res.status(200).json({
+                status: 'success',
+                data: resData,
+                type: 'Product'
+            });
+        }
+
+    }
+    catch(error) {
+
+    }
+}
