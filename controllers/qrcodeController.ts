@@ -196,3 +196,19 @@ exports.getProductInfoWithSerial = async(req:any, res:any, next:any) => {
 
     }
 }
+
+exports.getSerials = async(req:any, res:any, next:any) => {
+    try {
+        const serials = await Serials.find({});
+
+        res.status(200).json({
+            status: 'success',
+            data: serials,
+            type: 'Product'
+        });
+    }
+    catch(err) {
+
+    }
+
+}
