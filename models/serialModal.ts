@@ -15,7 +15,11 @@ const serialSchema = new mongoose.Schema({
     },
     product_id:{
         type:String
-    }
+    },
+    company_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company'
+    },
 });
 
 const QRcode = mongoose.model("Serial", serialSchema);

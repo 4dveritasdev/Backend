@@ -146,7 +146,9 @@ exports.mint = async(req: any, res: any, next: any) => {
                 await serialModal.create({
                     type:serial.type,
                     serial:uuidv4(),
-                    qrcode_id:product.total_minted_amount + j
+                    qrcode_id:product.total_minted_amount + j,
+                    product_id:product._id,
+                    company_id: product.company_id._id,
                 })
             }
         }

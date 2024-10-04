@@ -162,7 +162,7 @@ exports.getProductInfoWithQRCodeID = async (req: any, res: any, next: any) => {
 exports.getProductInfoWithSerial = async(req:any, res:any, next:any) => {
     try {
         const serialData = req.body.data
-        const serialInfo = await Serials.findOne({type:serialData.type,serial:serialData.serial})
+        const serialInfo = await Serials.findOne({type:serialData.type,serial:serialData.serial}).populate('company_id')
         if(serialInfo) {
             const product = await Product.findById(serialInfo.product_id);
             console.log(product);
@@ -199,6 +199,9 @@ exports.getProductInfoWithSerial = async(req:any, res:any, next:any) => {
 
 exports.getSerials = async(req:any, res:any, next:any) => {
     try {
+        if(req.query.type == 'clear') {
+            await Serials.deleteMany({})
+        }
         const serials = await Serials.find({});
 
         res.status(200).json({
