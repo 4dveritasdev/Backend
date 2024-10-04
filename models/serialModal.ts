@@ -14,7 +14,8 @@ const serialSchema = new mongoose.Schema({
         require:true
     },
     product_id:{
-        type:String
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
     },
     company_id: {
         type: mongoose.Schema.Types.ObjectId,
