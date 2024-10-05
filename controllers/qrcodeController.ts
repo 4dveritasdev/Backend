@@ -229,7 +229,7 @@ exports.getSerials = async(req:any, res:any, next:any) => {
                         token_id: (req.body.page - 1) * 100 + i
                     });
 
-                    let serial = serials.find((item:any)=>item.qrcode_id === ((req.body.page - 1) * 100 + i))
+                    let serial = serials.filter((item:any)=>item.qrcode_id === ((req.body.page - 1) * 100 + i))
                     data.push(serial);
                 }
             }
