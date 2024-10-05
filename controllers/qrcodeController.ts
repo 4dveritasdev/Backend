@@ -199,16 +199,49 @@ exports.getProductInfoWithSerial = async(req:any, res:any, next:any) => {
 
 exports.getSerials = async(req:any, res:any, next:any) => {
     try {
-        if(req.query.type == 'clear') {
-            await Serials.deleteMany({})
-        }
-        const serials = await Serials.find({});
+        try {
+            // const doc = await QRcode.find({ product_id: req.body.product_id }).skip(req.body.offset).limit(req.body.amount);
+            const product = await Product.findById(req.body.product_id)
+            const serials = await Serials.find({product_id:req.body.product_id})
+    
+            let data = [];
+            let count = 100;
+            
+            if (req.body.page == 0) {
+                
+                for (let i = req.body.from; i <= req.body.to; i ++) {
+                    if (i > 0 && i <= product.total_minted_amount) {
+                        let serial = serials.filter((item:any)=>item.qrcode_id === i)
+                        data.push(serial);
+                    }
+                }
+            } else if (req.body.page > 0) {
+                if (req.body.page == Math.ceil(product.total_minted_amount / 100) && product.total_minted_amount % 100) {
+                    count = product.total_minted_amount % 100;
+                } 
+                else if (req.body.page > Math.ceil(product.total_minted_amount / 100)) {
+                    count = 0;
+                }
+                
+                for (let i = 1; i <= count; i ++) {
+                    const stringdata = JSON.stringify({
+                        product_id: product._id,
+                        token_id: (req.body.page - 1) * 100 + i
+                    });
 
-        res.status(200).json({
-            status: 'success',
-            data: serials,
-            type: 'Product'
-        });
+                    let serial = serials.find((item:any)=>item.qrcode_id === ((req.body.page - 1) * 100 + i))
+                    data.push(serial);
+                }
+            }
+    
+            res.status(200).json({
+                status: 'success',
+                data
+            });
+            
+        } catch (error) {
+            next(error);
+        }
     }
     catch(err) {
 
