@@ -5,6 +5,8 @@ const {v4:uuidv4} = require('uuid')
 const serialModal = require('../models/serialModal')
 const base = require('./baseController');
 const APIFeatures = require('../utils/apiFeatures');
+import unmarshalDocs from '@api/unmarshal-docs';
+
 // const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 const { initClient, batchMint, getNonce, transferProduct } = require('../web3/index');
 const { encrypt, decrypt } = require('../utils/helper');
@@ -260,5 +262,37 @@ exports.printQRCodes = async (req: any, res: any, next: any) => {
         });
     } catch (error) {
         next(error);
+    }
+}
+
+exports.getTransaction = async(req:any,res:any,next:any) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        const token_id = req.params.token_id;
+
+        if(product && token_id) {
+            let address = product.token_address[Math.floor(token_id / divcount)];
+            let token = token_id % divcount;
+
+            unmarshalDocs.auth('q4guFpTe6XsWIb7fosJPgDAyGvkNKl0uqlrkhm9s');
+            
+            if(address) {
+                let {data} = await unmarshalDocs.getV3ChainAddressAddressTransactions({
+                    page: 1,
+                    pageSize: 100,
+                    chain: 'partisiablockchain-testnet',
+                    address: address
+                });
+
+                res.status(200).json({
+                    status:'success',
+                    data
+                })
+            }
+           
+        }
+    }
+    catch(error) {
+
     }
 }

@@ -14,6 +14,7 @@ router.post('/:id/mint', ProductController.mint);
 router.put('/:id', ProductController.updateProduct);
 router.post('/:id/print', ProductController.printQRCodes);
 router.delete('/:id', ProductController.deleteProduct);
+router.get('/transactions/:id/:token_id',ProductController.getTransaction);
 
 
 module.exports = router;
