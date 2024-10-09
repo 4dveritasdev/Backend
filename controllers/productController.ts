@@ -284,15 +284,25 @@ exports.getTransaction = async(req:any,res:any,next:any) => {
                     address: address
                 });
 
-                res.status(200).json({
+                return res.status(200).json({
                     status:'success',
                     data
                 })
             }
            
         }
+
+        res.status(200).json({
+            status:'fail',
+            data:[]
+        })
+
     }
     catch(error) {
-
+        console.log(error)
+        res.status(200).json({
+            status:'fail',
+            data:[]
+        })
     }
 }
