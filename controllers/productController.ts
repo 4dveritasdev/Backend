@@ -271,7 +271,7 @@ exports.getTransaction = async(req:any,res:any,next:any) => {
         const token_id = req.params.token_id;
 
         if(product && token_id) {
-            let address = product.token_address[Math.floor(token_id / divcount)];
+            let address = product.contract_address[Math.floor(token_id / divcount)];
             let token = token_id % divcount;
 
             unmarshalDocs.auth('q4guFpTe6XsWIb7fosJPgDAyGvkNKl0uqlrkhm9s');
