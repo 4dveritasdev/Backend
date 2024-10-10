@@ -1,6 +1,7 @@
 const AppError = require('../utils/appError');
 const Product = require('../models/productModel');
 const QRcode = require('../models/qrcodeModel');
+const userModel = require('../models/userModel')
 const {v4:uuidv4} = require('uuid')
 const serialModal = require('../models/serialModal')
 const base = require('./baseController');
@@ -284,9 +285,36 @@ exports.getTransaction = async(req:any,res:any,next:any) => {
                     address: address
                 });
 
+                let result:any[] = data.transactions as any[];
+
+                if(data.has_next) {
+                    while(data.has_next) {
+                        let info =  await unmarshalDocs.getV3ChainAddressAddressTransactions({
+                            page: 1,
+                            pageSize: 100,
+                            chain: 'partisiablockchain-testnet',
+                            address: address
+                        });
+
+                        data = info.data
+
+                        result = [...result,...(data.transactions as any[])]
+                    }
+                }
+
+                const transactions = result.filter(item=>item.arguments.token_id == token && item.type == 'transfer_from')
+
+                for(const transaction of transactions) {
+                    if(transaction.arguments.to) {
+                        let userInfo = await userModel.findOne({wallet:transaction.arguments.to})
+
+                        transaction.user = userInfo
+                    }
+                }
+
                 return res.status(200).json({
                     status:'success',
-                    data
+                    data:transactions
                 })
             }
            
