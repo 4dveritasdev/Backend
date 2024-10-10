@@ -303,7 +303,7 @@ exports.getTransaction = async(req:any,res:any,next:any) => {
                 }
 
                 const transactions = result.filter(item=>item.arguments?.token_id == token && item.type == 'transfer_from')
-                const users = userModel.find({})
+                const users = await userModel.find({})
 
                 for(const transaction of transactions) {
                     if(transaction.arguments.to) {
