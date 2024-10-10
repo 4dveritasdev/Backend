@@ -144,7 +144,8 @@ exports.getProductInfoWithQRCodeID = async (req: any, res: any, next: any) => {
                 ...product._doc,
                 ...tokenMetadata,
                 serialInfos:serials,
-                qrcode_img: qrcodeImage
+                qrcode_img: qrcodeImage,
+                company:data.company_id
             };
             
             res.status(200).json({
@@ -181,7 +182,8 @@ exports.getProductInfoWithSerial = async(req:any, res:any, next:any) => {
                 ...product._doc,
                 ...tokenMetadata,
                 serialInfos:serials,
-                qrcode_img: qrcodeImage
+                qrcode_img: qrcodeImage,
+                company:serialInfo.company_id
             };
             
             res.status(200).json({
