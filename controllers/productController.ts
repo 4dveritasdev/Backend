@@ -302,7 +302,7 @@ exports.getTransaction = async(req:any,res:any,next:any) => {
                     }
                 }
 
-                const transactions = result.filter(item=>item.arguments.token_id == token && item.type == 'transfer_from')
+                const transactions = result.filter(item=>item.arguments?.token_id == token && item.type == 'transfer_from')
 
                 for(const transaction of transactions) {
                     if(transaction.arguments.to) {
