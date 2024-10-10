@@ -303,6 +303,7 @@ exports.getTransaction = async(req:any,res:any,next:any) => {
                 }
 
                 const transactions = result.filter(item=>item.arguments?.token_id == token && item.type == 'transfer_from')
+                const users = userModel.find({})
 
                 for(const transaction of transactions) {
                     if(transaction.arguments.to) {
@@ -314,7 +315,8 @@ exports.getTransaction = async(req:any,res:any,next:any) => {
 
                 return res.status(200).json({
                     status:'success',
-                    data:transactions
+                    data:transactions,
+                    users:users
                 })
             }
            
