@@ -304,20 +304,18 @@ exports.getTransaction = async(req:any,res:any,next:any) => {
                 }
 
                 const transactions = result.filter(item=>item.arguments?.token_id == token && item.type == 'transfer_from')
-                const users = await companyModel.find({})
 
                 for(const transaction of transactions) {
                     if(transaction.arguments.to) {
                         let userInfo = await companyModel.findOne({wallet:transaction.arguments.to})
 
-                        transaction.user = userInfo
+                        transaction.company = userInfo
                     }
                 }
 
                 return res.status(200).json({
                     status:'success',
-                    data:transactions,
-                    users:users
+                    data:transactions
                 })
             }
            
