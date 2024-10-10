@@ -308,8 +308,10 @@ exports.getTransaction = async(req:any,res:any,next:any) => {
                 for(const transaction of transactions) {
                     if(transaction.arguments.to) {
                         let userInfo = await companyModel.findOne({wallet:transaction.arguments.to})
+                        let fromInfo = await companyModel.findOne({wallet:transaction.arguments.from})
 
                         transaction.company = userInfo
+                        transaction.fromCompany = fromInfo
                     }
                 }
 
