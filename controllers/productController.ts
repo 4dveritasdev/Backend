@@ -2,6 +2,7 @@ const AppError = require('../utils/appError');
 const Product = require('../models/productModel');
 const QRcode = require('../models/qrcodeModel');
 const userModel = require('../models/userModel')
+const companyModel = require('../models/companyModel')
 const {v4:uuidv4} = require('uuid')
 const serialModal = require('../models/serialModal')
 const base = require('./baseController');
@@ -303,11 +304,11 @@ exports.getTransaction = async(req:any,res:any,next:any) => {
                 }
 
                 const transactions = result.filter(item=>item.arguments?.token_id == token && item.type == 'transfer_from')
-                const users = await userModel.find({})
+                const users = await companyModel.find({})
 
                 for(const transaction of transactions) {
                     if(transaction.arguments.to) {
-                        let userInfo = await userModel.findOne({wallet:transaction.arguments.to})
+                        let userInfo = await companyModel.findOne({wallet:transaction.arguments.to})
 
                         transaction.user = userInfo
                     }
