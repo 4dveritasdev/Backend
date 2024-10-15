@@ -101,6 +101,9 @@ const productSchema = new mongoose.Schema({
     is_deleted: {
         type: Boolean,
         default: false
+    },
+    parent: {
+        type: mongoose.Schema.Types.ObjectId
     }
 });
 
