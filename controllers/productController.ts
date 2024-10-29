@@ -252,7 +252,13 @@ exports.mint = async(req: any, res: any, next: any) => {
                 })
             }
 
-            mintChildProduct(product._id,product.total_minted_amount + j)
+            const products = await Product.find({parent:product._id})
+
+            if(products.length > 0) {
+                mintChildProduct(product._id,product.total_minted_amount + j)
+            }
+
+            
         }
         let end = new Date();
         console.log(end.getTime() - start.getTime())
