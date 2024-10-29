@@ -317,7 +317,8 @@ exports.getTransaction = async(req:any,res:any,next:any) => {
 
                 return res.status(200).json({
                     status:'success',
-                    data:transactions
+                    data:transactions,
+                    results:result
                 })
             }
            

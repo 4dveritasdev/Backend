@@ -45,6 +45,8 @@ exports.addCompany = async(req: any, res: any, next: any) => {
     }
 };
 
+
+
 // exports.getCompanyByWallet = async(req: any, res: any, next: any) => {
 //     try {
 //         const doc = await Company.findOne({ wallet: req.params.wallet});
