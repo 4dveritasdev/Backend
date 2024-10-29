@@ -128,6 +128,102 @@ exports.addProduct = async(req: any, res: any, next: any) => {
     }
 };
 
+
+async function mintChildProduct(product_id:string,qrcode_id:number) {
+    try {
+        const products = await Product.find({parent:product_id})
+
+        for(const product of products) {
+            let start = new Date();
+            for(let j = 1;j<=product.parentCount;j++) {
+                await QRcode.create({
+                    product_id: product._id,
+                    company_id: product.company_id._id,
+                    qrcode_id: product.total_minted_amount + j,
+                    parent_qrcode_id:qrcode_id
+                })
+    
+                for(const serial of product.serials) {
+                    await serialModal.create({
+                        type:serial.type,
+                        serial:uuidv4(),
+                        qrcode_id:product.total_minted_amount + j,
+                        product_id:product._id,
+                        company_id: product.company_id._id,
+                        parent_qrcode_id:qrcode_id
+                    })
+                }
+
+                const productInfos = await Product.find({parent:product._id})
+
+                if(productInfos.length) {
+                    mintChildProduct(product._id,product.total_minted_amount + j)
+                }
+            }
+
+            let mintAmount = product.parentCount
+
+            if (product.total_minted_amount % divcount > 0) {
+                if (mintAmount >= (divcount - product.total_minted_amount % divcount)) {
+                    console.log('mint to prev contract', (divcount - product.total_minted_amount % divcount));
+                    await batchMint(product.company_id.wallet, product.contract_address[product.contract_address.length - 1], divcount - product.total_minted_amount % divcount);
+                    mintAmount -= (divcount - product.total_minted_amount % divcount);
+                    product.total_minted_amount += (divcount - product.total_minted_amount % divcount);
+                    product.save();
+                    // @ts-ignore
+                    global.io.emit('Refresh product data');
+    
+                } else {
+                    console.log('mint to prev contract', mintAmount);
+                    await batchMint(product.company_id.wallet, product.contract_address[product.contract_address.length - 1], mintAmount);
+                    product.total_minted_amount += mintAmount;
+                    product.save();
+                    // @ts-ignore
+                    global.io.emit('Refresh product data');
+                    mintAmount = 0;
+                }
+            }
+    
+            for(let p = 0; p < Math.floor(mintAmount / divcount); p ++ ) {
+                console.log('step', p, divcount);
+                let contract_address = await initClient(product._id);
+                let end = new Date();
+                console.log(end.getTime() - start.getTime())
+                product.contract_address.push(contract_address);
+                await batchMint(product.company_id.wallet, contract_address, divcount);
+                end = new Date();
+                console.log(end.getTime() - start.getTime())
+    
+                product.total_minted_amount += divcount;
+                product.save();
+    
+                // @ts-ignore
+                global.io.emit('Refresh product data');
+            }
+            if (mintAmount % divcount > 0) {
+                let contract_address = await initClient(product._id);
+                let end = new Date();
+                console.log(end.getTime() - start.getTime());
+                product.contract_address.push(contract_address);
+                await batchMint(product.company_id.wallet, contract_address, mintAmount % divcount);
+                end = new Date();
+                console.log(end.getTime() - start.getTime());
+                product.total_minted_amount += mintAmount % divcount;
+                product.save();
+    
+                // @ts-ignore
+                global.io.emit('Refresh product data');
+            }
+            
+        }
+
+
+    }
+    catch(error) {
+
+    }
+}
+
 exports.mint = async(req: any, res: any, next: any) => {
     try {
         const product = await Product.findById(req.params.id).populate('company_id');
@@ -155,6 +251,8 @@ exports.mint = async(req: any, res: any, next: any) => {
                     company_id: product.company_id._id,
                 })
             }
+
+            mintChildProduct(product._id,product.total_minted_amount + j)
         }
         let end = new Date();
         console.log(end.getTime() - start.getTime())
@@ -334,7 +432,7 @@ exports.getTransaction = async(req:any,res:any,next:any) => {
         console.log(error)
         res.status(200).json({
             status:'fail',
-            data:[]
+            data:[],
         })
     }
 }

@@ -12,6 +12,10 @@ const qrcodeSchema = new mongoose.Schema({
     qrcode_id: {
         type: Number,
         require: true
+    },
+    parent_qrcode_id:{
+        type:Number,
+        default:-1
     }
 });
 

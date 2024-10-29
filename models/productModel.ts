@@ -104,6 +104,10 @@ const productSchema = new mongoose.Schema({
     },
     parent: {
         type: mongoose.Schema.Types.ObjectId
+    },
+    parentCount:{
+        type:Number,
+        default:0
     }
 });
 
