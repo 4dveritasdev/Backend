@@ -62,16 +62,19 @@ exports.addCompany = async(req: any, res: any, next: any) => {
 //     }
 // };
 
+
+
 exports.login = async(req: any, res: any, next: any) => {
     try {
         const user = await Company.findOne({ name: req.body.name, password: req.body.password });
+        let ismobile = req.body.mobile;
 
-        // if(!user) {
+        if(!user || !ismobile) {
            return res.status(404).json({
                 status: 'failed',
                 message: 'User name or password is wrong!'
             });    
-        // }
+        }
 
         const {token_id} = await getUserTokenIdFromId(user._id);
         console.log(token_id);
