@@ -63,6 +63,20 @@ exports.addCompany = async(req: any, res: any, next: any) => {
 // };
 
 
+exports.getProductsByCompanyId = async(req:any,res:any,next:any) => {
+    try 
+    {
+        const user_id = req.query.user_id;
+        const company_products = await QRcode.find({company_id:user_id})
+        res.status(200).json({
+            status:'success',
+            products:company_products
+        })
+    }
+    catch(err) {
+        next(err)
+    }
+}
 
 exports.login = async(req: any, res: any, next: any) => {
     try {

@@ -13,6 +13,7 @@ router.post('/', CompanyController.addCompany);
 router.put('/:id', CompanyController.updateCompany);
 router.delete('/:id', CompanyController.deleteCompany);
 router.get('/verify/:id', CompanyController.verify);
+router.get('/products',CompanyController.getProductsByCompanyId);
 
 
 module.exports = router;
