@@ -7,6 +7,7 @@ const { CryptoUtils } = require('../web3/utils/CryptoUtil');
 const { encrypt, decrypt } = require('../utils/helper');
 const qrcode = require('qrcode');
 const QRcode = require('../models/qrcodeModel');
+const mongoose = require("mongoose");
 
 exports.getAllCompanys = base.getAll(Company);
 exports.getCompany = base.getOne(Company);
@@ -67,8 +68,7 @@ exports.getProductsByCompanyId = async(req:any,res:any,next:any) => {
     try 
     {
         const user_id = req.query.user_id;
-        const user = await Company.findById(user_id);
-        const company_products = await QRcode.find({company_id:user._id})
+        const company_products = await QRcode.find({company_id:mongoose.Types.ObjectId(user_id)})
         res.status(200).json({
             status:'success',
             products:company_products
