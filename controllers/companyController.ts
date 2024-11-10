@@ -72,6 +72,8 @@ exports.getProductsByCompanyId = async(req:any,res:any,next:any) => {
         let doc = {
             products:company_products
         }
+
+        console.log('doc',doc)
         res.status(200).json({
             status:'success',
             data:{
@@ -80,6 +82,7 @@ exports.getProductsByCompanyId = async(req:any,res:any,next:any) => {
         })
     }
     catch(err) {
+        console.log('error',err)
         next(err)
     }
 }
