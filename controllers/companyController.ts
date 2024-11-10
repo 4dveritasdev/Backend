@@ -69,9 +69,14 @@ exports.getProductsByCompanyId = async(req:any,res:any,next:any) => {
     {
         const user_id = req.query.user_id;
         const company_products = await QRcode.find({company_id:mongoose.Types.ObjectId(user_id)})
+        let doc = {
+            products:company_products
+        }
         res.status(200).json({
             status:'success',
-            products:company_products
+            data:{
+                doc
+            }
         })
     }
     catch(err) {
