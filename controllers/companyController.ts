@@ -90,7 +90,8 @@ exports.getProductsByCompanyId = async(req:any,res:any,next:any) => {
             status:'success',
             data:{
                 products,
-                count
+                count,
+                company_products
             }
         })
     }
