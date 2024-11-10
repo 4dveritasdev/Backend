@@ -1,4 +1,5 @@
 const Company = require('../models/companyModel');
+const Product = require('../models/productModel')
 const base = require('./baseController');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
@@ -70,15 +71,26 @@ exports.getProductsByCompanyId = async(req:any,res:any,next:any) => {
         const user_id = req.query.user_id;
         console.log('user_id',user_id)
         const company_products = await QRcode.find({company_id:mongoose.Types.ObjectId(user_id)})
-        let doc = {
-            products:company_products
-        }
+       
 
-        console.log('doc',doc)
+        let products = [];
+        let count:any = {}
+
+        for(const info of company_products) {   
+            if(count[info.product_id]) {
+                count[info.product_id] ++;
+            }
+            else {
+                count[info.product_id] = 1; 
+                const product = await Product.findById(info.product_id)
+                products.push(product)
+            }
+        }
         res.status(200).json({
             status:'success',
             data:{
-                doc
+                products,
+                count
             }
         })
     }
