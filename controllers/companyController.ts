@@ -106,7 +106,7 @@ exports.login = async(req: any, res: any, next: any) => {
         const user = await Company.findOne({ name: req.body.name, password: req.body.password });
         let ismobile = req.body.mobile;
 
-        if(!user || !ismobile) {
+        if(!user) {
            return res.status(404).json({
                 status: 'failed',
                 message: 'User name or password is wrong!'
